@@ -3,6 +3,9 @@
 	font-family: Palatino;
 	src: url(../font/palatino-linotype/Palatino\ Linotype.ttf)
 }
+
+/* Climas implementados: .rain .cloudy #snow  */
+
 *{
     margin: 0;
     padding: 0;
@@ -12,6 +15,7 @@
 body{
     background: url(../assets/E1.png);
     background-repeat: no-repeat;
+    background-size: cover;
 }
 
 .bar{
@@ -186,12 +190,13 @@ body{
     margin: 8px 8px 8px 16px;
 }
 
-/****************************************/
+/**************** rain *******************/
 
 .rain{
     height: 100vh;
-    background:url(../assets/icons/rain.png);
-    animation: rain .7s linear infinite;
+    background:rgba(8, 8, 8, 0.5);
+    background-image: url(../assets/icons/rain.png);
+    animation: rain .5s linear infinite;
 }
 
 .rain:before{
@@ -200,16 +205,41 @@ body{
     width: 100%;
     height: 100%;
     background: white;
-    animation: lighting .3s linear infinite;
+    animation: lighting .1s linear infinite;
     opacity: 0;
 }
 
 @keyframes rain{
-    0%{
-        background-position: 0% 0%;
-    }
-    100%{
-        background-position: 20% 100%;
-    }
+    0%{background-position: 0% 0%;}
+    100%{background-position: 20% 100%;}
+}
+
+@keyframes lighting{
+    0%{opacity: 0;}1%{opacity: 0;}2%{opacity: 0;}3%{opacity: 0;}4%{opacity: 0;}5%{opacity: 0;}6%{opacity: 0;}7%{opacity: 0;}8%{opacity: 0;}9%{opacity: 0;}
+    10%{opacity: 0;}11%{opacity: 0;}12%{opacity: 0;}13%{opacity: 0;}14%{opacity: 0;}15%{opacity: 0;}16%{opacity: 0;}17%{opacity: 0;}18%{opacity: 0;}19%{opacity: 0;}
+    20%{opacity: 0;}21%{opacity: 0;}22%{opacity: 0;}23%{opacity: 0;}24%{opacity: 0;}25%{opacity: 0;}26%{opacity: 0;}27%{opacity: 0;}28%{opacity: 0;}29%{opacity: 1;}
+    30%{opacity: 0;}31%{opacity: 0;}32%{opacity: 0;}33%{opacity: 0;}34%{opacity: 0;}35%{opacity: 0;}36%{opacity: 0;}37%{opacity: 0;}38%{opacity: 0;}39%{opacity: 0;}
+    40%{opacity: 0;}41%{opacity: 0;}42%{opacity: 0;}43%{opacity: 0;}44%{opacity: 0;}45%{opacity: 0;}46%{opacity: 0;}47%{opacity: 0;}48%{opacity: 0;}49%{opacity: 0;}
+    50%{opacity: 0;}51%{opacity: 0;}52%{opacity: 0;}53%{opacity: 0;}54%{opacity: 0;}55%{opacity: 0;}56%{opacity: 0;}57%{opacity: 0;}58%{opacity: 0;}59%{opacity: 0;}
+    60%{opacity: 0;}61%{opacity: 0;}62%{opacity: 0;}63%{opacity: 0;}64%{opacity: 0;}65%{opacity: 0;}66%{opacity: 0;}67%{opacity: 1;}68%{opacity: 0;}69%{opacity: 0;}
+    70%{opacity: 0;}71%{opacity: 0;}72%{opacity: 0;}73%{opacity: 0;}74%{opacity: 0;}75%{opacity: 0;}76%{opacity: 0;}77%{opacity: 0;}78%{opacity: 0;}79%{opacity: 0;}
+    80%{opacity: 0;}81%{opacity: 0;}82%{opacity: 0;}83%{opacity: 0;}84%{opacity: 0;}85%{opacity: 0;}86%{opacity: 0;}87%{opacity: 0;}88%{opacity: 0;}89%{opacity: 0;}
+    90%{opacity: 0;}91%{opacity: 0;}92%{opacity: 0;}93%{opacity: 0;}94%{opacity: 0;}95%{opacity: 0;}96%{opacity: 0;}97%{opacity: 0;}98%{opacity: 0;}99%{opacity: 0;}
+    100%{opacity: 0;}101%{opacity: 0;}102%{opacity: 0;}103%{opacity: 0;}104%{opacity: 0;}105%{opacity: 0;}106%{opacity: 0;}107%{opacity: 0;}108%{opacity: 0;}109%{opacity: 0;}
+}
+
+/**************** cloudy *******************/
+
+.cloudy{
+   height: 100vh;
+   background:rgba(8, 8, 8, 0.5);
+   background-image: url(../assets/icons/cloud.png);
+   animation: cloudy 90s linear infinite;
+   opacity: 0.5;
+}
+
+@keyframes cloudy{
+    0%{background-position: 0px;}
+    100%{background-position: 5440px;}
 }
 
