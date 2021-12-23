@@ -1,0 +1,215 @@
+@import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Dosis:wght@200;300;400;500;600;700;800&family=Fredericka+the+Great&family=Josefin+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Patua+One&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@font-face {
+	font-family: Palatino;
+	src: url(../font/palatino-linotype/Palatino\ Linotype.ttf)
+}
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Palatino,'Dosis', sans-serif;
+}
+body{
+    background: url(../assets/E1.png);
+    background-repeat: no-repeat;
+}
+
+.bar{
+    background-color: rgba(63, 31, 6, 0.8);
+    background-blend-mode: multiply;
+    mix-blend-mode: multiply;
+    z-index: 10;
+}
+
+.bar-header{
+    position:fixed;
+    top:0;
+    left: 0;
+    width: 100%;
+    min-height: 6%;
+    z-index: 55;
+    
+}
+
+.container-header{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    text-align: center;
+    font-size: 14px;
+    color: #ffeeb6;
+    z-index: 100;
+    text-shadow: 1px 1px 1px black
+}
+
+.container-header .sidel{
+    display: flex;
+}
+
+.container-header .sider{
+    display: flex;
+}
+
+.container-header img{
+    width: 25px;
+}
+
+/****************************************/
+
+.container-header .money{
+    display: flex;
+    align-items: center;
+    margin: 12px;
+}
+
+.container-header .money img{
+    margin-left: 16px;
+}
+
+.container-header .money p{
+    margin-left: 8px;
+}
+
+/****************************************/
+
+.container-header .worker{
+    display: flex;
+    align-items: center;
+    margin: 12px 0 12px 0;
+}
+
+.container-header .worker img{
+    margin-left: 18px;
+    
+}
+
+.container-header .worker p{
+    margin-left: 8px;
+}
+
+/****************************************/
+
+.container-header .timer{
+    display: flex;
+    align-items: center;
+}
+
+.container-header .timer img{
+    filter: hue-rotate(180deg);
+    filter: brightness(0.6);
+    cursor: pointer;
+}
+
+.container-header .timer .active img{
+    filter: brightness(200%) opacity(100%) sepia(100%) 
+            drop-shadow(1px 1px 1px #000000) contrast(200%)
+            hue-rotate(309deg) saturate(82%);
+            width: 40px;
+            height: 40px;
+}
+
+.container-header .timer .idle img{
+    display: none;
+}
+
+.container-header .timer img:hover{
+        filter: brightness(200%) opacity(100%) sepia(100%) 
+        drop-shadow(1px 1px 1px #000000) contrast(200%)
+        hue-rotate(309deg) saturate(82%);
+}
+
+.container-header .timer p{
+    margin: 0 16px 0 64px;
+}
+
+.float div{
+    display: none;
+    position:relative;
+    width:8em;
+    color:#fff;
+    background:rgba(153, 153, 153,0.7);
+    border-radius:5px;
+    padding:5px;
+}
+
+.float:hover div {
+    display:block;
+    position:absolute;
+    top: 40px;
+    margin-left:-80px;
+}
+
+
+/****************************************/
+.container-header .weather{
+    display: flex;
+    align-items: center;
+    margin: 12px;
+}
+
+.container-header .weather span{
+    margin-right: 16px;
+}
+
+.container-header .weather p{
+    margin: 0 4px 0 16px;
+}
+/****************************************/
+
+.side-bar{
+    position: fixed;
+    top: 20%;
+    right: -70px;
+}
+
+.side-bar div{
+    display: flex;
+    width: 120px;
+    height: 50px;
+    border-radius: 25px;
+    margin: 4px;
+    background: rgba(63, 31, 6, 0.8);
+    transition: transform 250ms, opacity 400ms;
+}
+
+.side-bar div:hover{
+    transform: translateX(-20px);
+}
+
+.side-bar .selected{
+    transform: translateX(-20px);
+}
+
+
+.side-bar div img{
+    width: 25px;
+    margin: 8px 8px 8px 16px;
+}
+
+/****************************************/
+
+.rain{
+    height: 100vh;
+    background:url(../assets/icons/rain.png);
+    animation: rain .7s linear infinite;
+}
+
+.rain:before{
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: white;
+    animation: lighting .3s linear infinite;
+    opacity: 0;
+}
+
+@keyframes rain{
+    0%{
+        background-position: 0% 0%;
+    }
+    100%{
+        background-position: 20% 100%;
+    }
+}
+

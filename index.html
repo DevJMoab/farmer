@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>## FARMER ##</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <div class="rain"></div>
+    <div class="container">
+        <header class="bar-header">
+            <div class="bar">
+                <div class="container-header">
+                    <div class="sidel">
+                        <div class="money">
+                            <img src="./assets/icons/cash.svg" alt="cash">
+                            <p class="text">16.784.165,97</p>
+                        </div>
+                        <div class="worker">
+                            <img src="./assets/icons/worker.svg" alt="workers">
+                            <div class="float"><p class="text">12/32</p><div>Ociosos / Total</div></div>
+                        </div>
+                    </div>
+                    <div class="sider"> 
+                        <div class="timer">
+                            <div class="float"><img class="pause" src="./assets/icons/pause.svg" alt="pause"><div>Pausar jogo</div></div>
+                            <div class="float active"><img class="play" src="./assets/icons/play2.svg" alt="play"><div>Continuar jogo</div></div>
+                            <div class="float"><img class="umx" src="./assets/icons/1x.svg" alt="1x"><div>Acelerar em 2x</div></div>
+                            <div class="float"><img class="doisx" src="./assets/icons/2x.svg" alt="2x"><div>Acelerar em 3x</div></div>
+                            <div class="float idle"><img class="tresx" src="./assets/icons/3x.svg" alt="3x"><div>Pular Inverno</div></div>
+                            <div class="float"><p class="text">18.12.2021</p></div>
+                        </div>
+
+                        <div class="weather">
+                            <p class="text">15</p><span>°C</span>
+                            <div class="float"><img src="./assets/icons/sun.svg" alt="sun"><div>faltam <span>256</span> dias para o Inverno!</div></div>
+                        </div>
+                    </div>    
+                </div>
+            </div>
+        </header>
+        <div class="side-bar">
+            <div><img src="./assets/icons/hammer.svg" alt="buildings"></div>
+            <div><img src="./assets/icons/tractor.svg" alt="machines"></div>
+            <div><img src="./assets/icons/lists.svg" alt="lists"></div>
+            <div><img src="./assets/icons/mail.svg" alt="mail"></div>
+            <div><img src="./assets/icons/alert.svg" alt="alert"></div>
+            <div><img src="./assets/icons/settings.svg" alt="settings"></div>
+            <div><img src="./assets/icons/store.svg" alt="store"></div>
+            <div><img src="./assets/icons/office.svg" alt="office"></div>
+            
+        </div>
+    </div>
+
+    <!--<script>
+        var scale = 1,
+          panning = false,
+          pointX = 0,
+          pointY = 0,
+          start = { x: 0, y: 0 },
+          zoom = document.getElementById("farm");
+  
+        function setTransform() {
+          zoom.style.transform = "translate(" + pointX + "px, " + pointY + "px) scale(" + scale + ")";
+        }
+  
+        zoom.onmousedown = function (e) {
+          e.preventDefault();
+          start = { x: e.clientX - pointX, y: e.clientY - pointY };
+          panning = true;
+        }
+  
+        zoom.onmouseup = function (e) {
+          panning = false;
+        }
+  
+        zoom.onmousemove = function (e) {
+          e.preventDefault();
+          if (!panning) {
+            return;
+          }
+          pointX = (e.clientX - start.x);
+          pointY = (e.clientY - start.y);
+          setTransform();
+        }
+  
+        zoom.onwheel = function (e) {
+          e.preventDefault();
+          var xs = (e.clientX - pointX) / scale,
+            ys = (e.clientY - pointY) / scale,
+            delta = (e.wheelDelta ? e.wheelDelta : -e.deltaY);
+          (delta > 0) ? (scale *= 1.2) : (scale /= 1.2);
+          pointX = e.clientX - xs * scale;
+          pointY = e.clientY - ys * scale;
+  
+          setTransform();
+        }
+      </script>-->
+    
+</body>
+</html>
