@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Dosis:wght@200;300;400;500;600;700;800&family=Fredericka+the+Great&family=Josefin+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Patua+One&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 @font-face {
-	font-family: Palatino;
+    font-family: Palatino;
 	src: url(../font/palatino-linotype/Palatino\ Linotype.ttf)
 }
 
@@ -106,10 +106,10 @@ body{
 
 .container-header .timer .active img{
     filter: brightness(200%) opacity(100%) sepia(100%) 
-            drop-shadow(1px 1px 1px #000000) contrast(200%)
-            hue-rotate(309deg) saturate(82%);
-            width: 40px;
-            height: 40px;
+    drop-shadow(1px 1px 1px #000000) contrast(200%)
+    hue-rotate(309deg) saturate(82%);
+    width: 40px;
+    height: 40px;
 }
 
 .container-header .timer .idle img{
@@ -117,9 +117,9 @@ body{
 }
 
 .container-header .timer img:hover{
-        filter: brightness(200%) opacity(100%) sepia(100%) 
-        drop-shadow(1px 1px 1px #000000) contrast(200%)
-        hue-rotate(309deg) saturate(82%);
+    filter: brightness(200%) opacity(100%) sepia(100%) 
+    drop-shadow(1px 1px 1px #000000) contrast(200%)
+    hue-rotate(309deg) saturate(82%);
 }
 
 .container-header .timer p{
@@ -231,11 +231,11 @@ body{
 /**************** cloudy *******************/
 
 .cloudy{
-   height: 100vh;
-   background:rgba(8, 8, 8, 0.5);
-   background-image: url(../assets/icons/cloud.png);
-   animation: cloudy 90s linear infinite;
-   opacity: 0.5;
+    height: 100vh;
+    background:rgba(8, 8, 8, 0.5);
+    background-image: url(../assets/icons/cloud.png);
+    animation: cloudy 90s linear infinite;
+    opacity: 0.5;
 }
 
 @keyframes cloudy{
