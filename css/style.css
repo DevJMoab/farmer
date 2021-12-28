@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Dosis:wght@200;300;400;500;600;700;800&family=Fredericka+the+Great&family=Josefin+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Patua+One&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+/*@import "https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css";*/
 @font-face {
     font-family: Palatino;
 	src: url(../font/palatino-linotype/Palatino\ Linotype.ttf)
@@ -15,7 +16,7 @@
 body{
     background: url(../assets/E1.png);
     background-repeat: no-repeat;
-    background-size: cover;
+    /*background-size: cover;*/
 }
 
 .bar{
@@ -242,4 +243,69 @@ body{
     0%{background-position: 0px;}
     100%{background-position: 5440px;}
 }
+
+/*------------------------------------------------------*/
+.modal{
+    position: absolute;
+}
+
+.modal table{
+    width: 100%;
+    color: wheat;
+    background: rgba(41, 40, 40, 0.63);
+    border: 1px solid rgba(255, 238, 182, 0.527);
+    border-radius: 4px;
+}
+
+.modal table tr th img{
+    width: 20px;
+    height: 20px;
+    filter: opacity(0.9);
+    vertical-align: middle;
+}
+
+.modal .money{
+    border: 1px solid rgba(41, 40, 40, 0.63);
+    border-radius: 16px;
+    background-color: rgba(41, 40, 40, 0.342);;
+    padding: 4px 8px;
+    display: flex;
+    justify-content: center;
+    margin: 0 auto;
+    color: #fff;
+}
+
+.modal .money img{
+    width: 20px;
+}
+
+.modal .icons{
+    filter: brightness(20%) opacity(30%) sepia(100%) 
+    hue-rotate(309deg) saturate(82%);
+}
+
+.modal .money p{
+    margin-left: 8px;
+}
+
+.modal table{
+    margin-top: 30px;
+}
+
+.modal table tbody tr img{
+    width: 42px;
+    height: 42px;
+}
+
+.modal table tbody button{
+    font-size: 12px;
+    padding: 4px 8px;
+    color: white;
+    background: #6C3515;
+    border: 1px solid #281006;
+    box-sizing: border-box;
+    box-shadow: inset 1px 4px 1px rgba(255, 255, 255, 0.25), inset 0px -13px 5px rgba(0, 0, 0, 0.25), inset 0px -4px 4px rgba(0, 0, 0, 0.45);
+    border-radius: 2px;
+}
+
 

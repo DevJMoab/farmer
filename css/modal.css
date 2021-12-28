@@ -149,13 +149,15 @@
     display:flex;
     flex-direction:column;
     max-height:calc(100vh - 130px);
+    border: 1px solid rgba(238, 223, 158, 0.26);
+    border-radius: 4px;
     overflow:hidden;
     -ms-overflow-y:visible
 }
 
 .modal-card-foot,.modal-card-head{
     align-items:center;
-    background-color:#f5f5f5;
+    background-color:rgba(27, 27, 27, 0.719);
     display:flex;
     flex-shrink:0;
     justify-content:flex-start;
@@ -164,13 +166,13 @@
 }
 
 .modal-card-head{
-    border-bottom:1px solid #dbdbdb;
+    border-bottom:1px solid #1b1b1b;
     border-top-left-radius:6px;
     border-top-right-radius:6px
 }
 
 .modal-card-title{
-    color:#363636;
+    color:#f1f1f1;
     flex-grow:1;
     flex-shrink:0;
     font-size:1rem;
@@ -180,7 +182,7 @@
 .modal-card-foot{
     border-bottom-left-radius:6px;
     border-bottom-right-radius:6px;
-    border-top:1px solid #dbdbdb
+    border-top:1px solid #1b1b1b
 }
 
 .modal-card-foot .button:not(:last-child){
@@ -189,9 +191,36 @@
 
 .modal-card-body{
     -webkit-overflow-scrolling:touch;
-    background-color:#fff;
+    background-color:rgba(97, 97, 97, 0.705);
     flex-grow:1;
     flex-shrink:1;
     overflow:auto;
     padding:20px
+}
+
+/*-------------------table-------------------*/
+
+.table{
+    background-color:#fff;
+    color:#363636;
+    border-collapse: collapse;
+    
+}
+
+.table td,.table th{
+    border:1px solid #dbdbdb;
+    border-width: 0 0 1px 0;
+    padding:.5em .75em;
+    text-align: center;
+}
+
+.table tr.tbody:hover{
+    background-color:#00d1b2;
+    color:#fff
+}
+
+
+.table thead td,.table thead th{
+    border-width:0 0 2px;
+    color:#363636
 }
