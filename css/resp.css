@@ -1,0 +1,18 @@
+@media screen and (max-width:680px){
+    .container-header .timer{
+        display:none;
+    }
+    .bubble img{
+        opacity: 1;
+    }
+}
+
+@media screen and (max-width:420px){
+    .container-header .weather .float, span{
+        display:none;
+    }
+
+    .bubble.weather img{
+        opacity: 1;
+    }
+}

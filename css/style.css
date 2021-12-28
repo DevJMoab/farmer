@@ -16,7 +16,7 @@
 body{
     background: url(../assets/E1.png);
     background-repeat: no-repeat;
-    /*background-size: cover;*/
+    background-size:auto;
 }
 
 .bar{
@@ -244,68 +244,75 @@ body{
     100%{background-position: 5440px;}
 }
 
-/*------------------------------------------------------*/
-.modal{
+/*-------------------- scrollbar --------------------*/
+
+*::-webkit-scrollbar {
+    width: 12px;
+}
+  
+*::-webkit-scrollbar-track {
+    background: #5c5c5c9a;
+}
+  
+*::-webkit-scrollbar-thumb {
+    background-color: #3b3b3bad;
+    border-radius: 20px;
+    border: 3px solid #5c5c5c9a;
+}
+
+/*---------------------------------------------------------------------------*/
+
+.bubble img{
+    opacity: 0;
     position: absolute;
+    background: #292929ea;
 }
 
-.modal table{
-    width: 100%;
-    color: wheat;
-    background: rgba(41, 40, 40, 0.63);
-    border: 1px solid rgba(255, 238, 182, 0.527);
-    border-radius: 4px;
+.bubble img:hover{
+    background: #555555c9;
 }
 
-.modal table tr th img{
+.bubble.play img{
+    bottom: 20px;
+    left: 20px;
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
+
+}
+
+.bubble img{
     width: 20px;
     height: 20px;
-    filter: opacity(0.9);
-    vertical-align: middle;
+    border-radius: 10px;
 }
 
-.modal .money{
-    border: 1px solid rgba(41, 40, 40, 0.63);
-    border-radius: 16px;
-    background-color: rgba(41, 40, 40, 0.342);;
-    padding: 4px 8px;
-    display: flex;
-    justify-content: center;
-    margin: 0 auto;
-    color: #fff;
+.bubble.pause img{
+    bottom: 55px;
+    left: 15px;
+    }
+
+.bubble.umx img{
+    bottom: 50px;
+    left: 40px;
 }
 
-.modal .money img{
-    width: 20px;
+.bubble.doisx img{
+    bottom: 30px;
+    left: 55px;
 }
 
-.modal .icons{
-    filter: brightness(20%) opacity(30%) sepia(100%) 
-    hue-rotate(309deg) saturate(82%);
+.bubble.tresx img{
+    bottom: 6px;
+    left: 50px;
 }
 
-.modal .money p{
-    margin-left: 8px;
+.bubble.weather img{
+    opacity: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 25px;
+    padding: 4px;
+    bottom: 15px;
+    right: 15px;
 }
-
-.modal table{
-    margin-top: 30px;
-}
-
-.modal table tbody tr img{
-    width: 42px;
-    height: 42px;
-}
-
-.modal table tbody button{
-    font-size: 12px;
-    padding: 4px 8px;
-    color: white;
-    background: #6C3515;
-    border: 1px solid #281006;
-    box-sizing: border-box;
-    box-shadow: inset 1px 4px 1px rgba(255, 255, 255, 0.25), inset 0px -13px 5px rgba(0, 0, 0, 0.25), inset 0px -4px 4px rgba(0, 0, 0, 0.45);
-    border-radius: 2px;
-}
-
-

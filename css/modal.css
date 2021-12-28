@@ -150,7 +150,7 @@
     flex-direction:column;
     max-height:calc(100vh - 130px);
     border: 1px solid rgba(238, 223, 158, 0.26);
-    border-radius: 4px;
+    border-radius: 8px;
     overflow:hidden;
     -ms-overflow-y:visible
 }
@@ -195,8 +195,97 @@
     flex-grow:1;
     flex-shrink:1;
     overflow:auto;
-    padding:20px
+    padding:20px;
 }
+
+/* -------------------- Modal table -------------------- */
+
+.modal{
+    position: absolute;
+}
+
+.modal thead tr.thead{
+    position:sticky;
+    background-color: #4141419a
+}
+
+.modal table tbody{
+    position: relative;
+    background: #5c5c5c9a;
+}
+.modal .modal-card-title{
+    text-align: center;
+}
+
+.modal table tbody tr:nth-child(even){
+    background: #8181819a;
+}
+
+.modal table tbody tr:hover{
+    background: rgba(247, 247, 247, 0.74);
+    color: rgb(46, 46, 46);
+}
+
+.modal table{
+    width: 100%;
+    color: rgb(243, 239, 239);
+    background: rgba(41, 40, 40, 0.63);
+    border: 1px solid rgba(255, 238, 182, 0.527);
+    border-radius: 8px;
+    font-size: 0.8rem;
+}
+
+.modal table tr th img{
+    width: 20px;
+    height: 20px;
+    filter: opacity(0.9);
+    vertical-align: middle;
+}
+
+.modal .money{
+    border: 1px solid rgba(41, 40, 40, 0.63);
+    border-radius: 16px;
+    background-color: rgba(41, 40, 40, 0.342);;
+    padding: 4px 8px;
+    display: flex;
+    justify-content: center;
+    margin: 0 auto;
+    color: #fff;
+}
+
+.modal .money img{
+    width: 20px;
+}
+
+.modal .icons{
+    filter: brightness(20%) opacity(30%) sepia(100%) 
+    hue-rotate(309deg) saturate(82%);
+}
+
+.modal .money p{
+    margin-left: 8px;
+}
+
+.modal table{
+    margin-top: 30px;
+}
+
+.modal table tbody tr img{
+    width: 42px;
+    height: 42px;
+}
+
+.modal table tbody button{
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    color: white;
+    background: #6C3515;
+    border: 1px solid #281006;
+    box-sizing: border-box;
+    box-shadow: inset 1px 4px 1px rgba(255, 255, 255, 0.25), inset 0px -13px 5px rgba(0, 0, 0, 0.25), inset 0px -4px 4px rgba(0, 0, 0, 0.45);
+    border-radius: 4px;
+}
+
 
 /*-------------------table-------------------*/
 
@@ -221,6 +310,6 @@
 
 
 .table thead td,.table thead th{
-    border-width:0 0 2px;
+    border-width:0 0 1px;
     color:#363636
 }
