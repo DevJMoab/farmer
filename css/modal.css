@@ -148,7 +148,7 @@
 .modal-card{
     display:flex;
     flex-direction:column;
-    max-height:calc(100vh - 130px);
+    max-height:calc(90vh - 130px);
     border: 1px solid rgba(238, 223, 158, 0.26);
     border-radius: 8px;
     overflow:hidden;

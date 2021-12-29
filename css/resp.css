@@ -2,6 +2,9 @@
     .container-header .timer{
         display:none;
     }
+    .side-bar{
+        top: 10%;
+    }
     .bubble img{
         opacity: 1;
     }
@@ -10,6 +13,10 @@
 @media screen and (max-width:420px){
     .container-header .weather .float, span{
         display:none;
+    }
+
+    .bb, span{
+        visibility: visible;
     }
 
     .bubble.weather img{
