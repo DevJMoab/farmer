@@ -20,7 +20,7 @@ body{
 }
 
 .bar{
-    background-color: rgba(63, 31, 6, 0.8);
+    background-color: #3f1f06cc;
     background-blend-mode: multiply;
     mix-blend-mode: multiply;
     z-index: 10;
