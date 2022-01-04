@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="PT-BR">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="./css/resp.css">
 </head>
 <body>
-    <div class="climate" id=""></div>
+    <div class="climate" ></div>
     <div class="container">
         <header class="bar-header">
             <div class="bar">
@@ -44,6 +44,7 @@
                 </div>
             </div>
         </header>
+        <div class="app" id=""></div>
         <div class="side-bar">
             <div id="openRegisterModal"><img src="./assets/icons/hammer.svg" alt="buildings"></div>
             <div><img src="./assets/icons/tractor.svg" alt="machines"></div>
@@ -61,9 +62,23 @@
       <div class="modal-background"></div>
       <div class="modal-card">
         <header class="modal-card-head">
-          <p class="modal-card-title">Construções</p>
-          <button class="delete" aria-label="close" id="closeModal"></button>
+          <div class="throw"><p class="modal-card-title">Construções</p></div>
+          <a class="close" aria-label="close" id="closeModal"></a>
         </header>
+          <ul class="modal-tabs" style="display: block;">
+            <li class="ui-ib tab-social active">
+              <a><div></div>Social</a></li>
+            <li class="ui-ib tab-animals ">
+              <a><div></div>Animals</a></li>
+            <li class="ui-ib tab-production">
+              <a><div></div>Production</a></li>
+            <li class="ui-ib tab-storage">
+              <a><div></div>Storage</a></li>
+            <li class="ui-ib tab-machines">
+              <a><div></div>Machines</a></li>
+            <li class="ui-ib tab-others">
+              <a><div></div>Others</a></li>
+          </ul>
         <section class="modal-card-body">
           
           <div class="money">
@@ -74,160 +89,160 @@
         <table class="table">
           <thead>
             <tr class="thead">
-              <th><img src="./assets/icons/const.svg" alt="building"><abbr title="Construção"></abbr></th>
-              <th><img src="./assets/icons/nivel.svg" alt="building"><abbr title="Nível"></abbr></th>
-              <th><img src="./assets/icons/money.svg" alt="building"><abbr title="Custo"></abbr></th>
-              <th><img src="./assets/icons/action.svg" alt="building"><abbr title="Ação"></abbr></th>
+              <th><div class="table-header-icons building" title="Building"></div></th>
+              <th><div class="table-header-icons level" title="Level"></div></th>
+              <th><div class="table-header-icons cost" title="Cost"></div></abbr></th>
+              <th><div class="table-header-icons actions" title="Actions"></div></th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <th>Sede</th>
+              <th class="th-name">Sede</th>
               <td>Level 1</td>
               <td>R$ 16.897,26</td>
               <td><button class="button">Construir</button></td>
             </tr>
             <tr>
-              <th>Curral</th>
+              <th class="th-name">Curral</th>
               <td>Level 1</td>
               <td>R$ 16.897,26</td>
               <td><button class="button">Construir</button></td>
             </tr>
             <tr>
-              <th>Aprisco</th>
+              <th class="th-name">Aprisco</th>
               <td>Level 1</td>
               <td>R$ 16.897,26</td>
               <td><button class="button">Construir</button></td>
             </tr>
             <tr>
-              <th>Pocilga</th>
+              <th class="th-name">Pocilga</th>
               <td>Level 1</td>
               <td>R$ 16.897,26</td>
               <td><button class="button">Construir</button></td>
             </tr>
             <tr>
-              <th>Estábulo</th>
+              <th class="th-name">Estábulo</th>
               <td>Level 1</td>
               <td>R$ 16.897,26</td>
               <td><button class="button">Construir</button></td>
             </tr>
             <tr>
-              <th>Viveiros</th>
+              <th class="th-name">Viveiros</th>
               <td>Level 1</td>
               <td>R$ 16.897,26</td>
               <td><button class="button">Construir</button></td>
             </tr>
             <tr>
-              <th>Tanques</th>
+              <th class="th-name">Tanques</th>
               <td>Level 1</td>
               <td>R$ 16.897,26</td>
               <td><button class="button">Construir</button></td>
             </tr>
             <tr>
-              <th>Viveiro para galinhas</th>
+              <th class="th-name">Viveiro para galinhas</th>
               <td>Level 1</td>
               <td>R$ 16.897,26</td>
               <td><button class="button">Construir</button></td>
             </tr>
             <tr>
-              <th>Viveiro para codornizes</th>
+              <th class="th-name">Viveiro para codornizes</th>
               <td>Level 1</td>
               <td>R$ 16.897,26</td>
               <td><button class="button">Construir</button></td>
             </tr>
             <tr>
-              <th>Viveiro para patos</th>
+              <th class="th-name">Viveiro para patos</th>
               <td>Level 1</td>
               <td>R$ 16.897,26</td>
               <td><button class="button">Construir</button></td>
             </tr>
             <tr>
-              <th>Viveiro para avestruzes</th>
+              <th class="th-name">Viveiro para avestruzes</th>
               <td>Level 1</td>
               <td>R$ 16.897,26</td>
               <td><button class="button">Construir</button></td>
             </tr>
 
             <tr>
-              <th>Pomar</th>
+              <th class="th-name">Pomar</th>
               <td>Level 1</td>
               <td>R$ 16.897,26</td>
               <td><button class="button">Construir</button></td>
             </tr>
             <tr>
-              <th>Horta</th>
+              <th class="th-name">Horta</th>
               <td>Level 1</td>
               <td>R$ 16.897,26</td>
               <td><button class="button">Construir</button></td>
             </tr>
             <tr>
-              <th>Campos</th>
+              <th class="th-name">Campos</th>
               <td>Level 1</td>
               <td>R$ 16.897,26</td>
               <td><button class="button">Construir</button></td>
             </tr>
             <tr>
-              <th>Garagem para máquinas</th>
+              <th class="th-name">Garagem para máquinas</th>
               <td>Level 1</td>
               <td>R$ 16.897,26</td>
               <td><button class="button">Construir</button></td>
             </tr>
             <tr>
-              <th>Oficina</th>
+              <th class="th-name">Oficina</th>
               <td>Level 1</td>
               <td>R$ 16.897,26</td>
               <td><button class="button">Construir</button></td>
             </tr>
             <tr>
-              <th>Estufas</th>
+              <th class="th-name">Estufas</th>
               <td>Level 1</td>
               <td>R$ 16.897,26</td>
               <td><button class="button">Construir</button></td>
             </tr>
             <tr>
-              <th>Depósitos de esterco</th>
+              <th class="th-name">Depósitos de esterco</th>
               <td>Level 1</td>
               <td>R$ 16.897,26</td>
               <td><button class="button">Construir</button></td>
             </tr>
             <tr>
-              <th>Depósitos de silagem</th>
+              <th class="th-name">Depósitos de silagem</th>
               <td>Level 1</td>
               <td>R$ 16.897,26</td>
               <td><button class="button">Construir</button></td>
             </tr>
             <tr>
-              <th>Depósitos gerais </th>
+              <th class="th-name">Depósitos gerais </th>
               <td>Level 1</td>
               <td>R$ 16.897,26</td>
               <td><button class="button">Construir</button></td>
             </tr>
             <tr>
-              <th>Celeiro</th>
+              <th class="th-name">Celeiro</th>
               <td>Level 1</td>
               <td>R$ 16.897,26</td>
               <td><button class="button">Construir</button></td>
             </tr>
             <tr>
-              <th>Silo</th>
+              <th class="th-name">Silo</th>
               <td>Level 1</td>
               <td>R$ 16.897,26</td>
               <td><button class="button">Construir</button></td>
             </tr>
             <tr>
-              <th>Moinho</th>
+              <th class="th-name">Moinho</th>
               <td>Level 1</td>
               <td>R$ 16.897,26</td>
               <td><button class="button">Construir</button></td>
             </tr>
             <tr>
-              <th>Clínica</th>
+              <th class="th-name">Clínica</th>
               <td>Level 1</td>
               <td>R$ 16.897,26</td>
               <td><button class="button">Construir</button></td>
             </tr>
             <tr>
-              <th>Central de processamento</th>
+              <th class="th-name">Central de processamento</th>
               <td>Level 1</td>
               <td>R$ 16.897,26</td>
               <td><button class="button">Construir</button></td>

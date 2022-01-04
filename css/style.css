@@ -14,9 +14,16 @@
     font-family: Palatino,'Dosis', sans-serif;
 }
 body{
-    background: url(../assets/E1.png);
-    background-repeat: no-repeat;
-    background-size:auto;
+    background: url(../assets/e1.png) 50% 100%;
+    background-color: #99cc33;
+}
+
+.app{
+    position: absolute;
+    background: url(../assets/E1.png) no-repeat;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
 }
 
 .bar{
@@ -193,14 +200,15 @@ body{
 
 /**************** rain *******************/
 
-.rain{
+#rain{
     height: 100vh;
     background:rgba(8, 8, 8, 0.5);
     background-image: url(../assets/icons/rain.png);
     animation: rain .5s linear infinite;
+    z-index: 0;
 }
 
-.rain:before{
+#rain:before{
     content: '';
     position: absolute;
     width: 100%;
@@ -222,7 +230,7 @@ body{
     30%{opacity: 0;}31%{opacity: 0;}32%{opacity: 0;}33%{opacity: 0;}34%{opacity: 0;}35%{opacity: 0;}36%{opacity: 0;}37%{opacity: 0;}38%{opacity: 0;}39%{opacity: 0;}
     40%{opacity: 0;}41%{opacity: 0;}42%{opacity: 0;}43%{opacity: 0;}44%{opacity: 0;}45%{opacity: 0;}46%{opacity: 0;}47%{opacity: 0;}48%{opacity: 0;}49%{opacity: 0;}
     50%{opacity: 0;}51%{opacity: 0;}52%{opacity: 0;}53%{opacity: 0;}54%{opacity: 0;}55%{opacity: 0;}56%{opacity: 0;}57%{opacity: 0;}58%{opacity: 0;}59%{opacity: 0;}
-    60%{opacity: 0;}61%{opacity: 0;}62%{opacity: 0;}63%{opacity: 0;}64%{opacity: 0;}65%{opacity: 0;}66%{opacity: 0;}67%{opacity: 1;}68%{opacity: 0;}69%{opacity: 0;}
+    60%{opacity: 0;}61%{opacity: 0;}62%{opacity: 0;}63%{opacity: 0;}64%{opacity: 0;}65%{opacity: 0;}66%{opacity: 0;}67%{opacity: 0;}68%{opacity: 0;}69%{opacity: 0;}
     70%{opacity: 0;}71%{opacity: 0;}72%{opacity: 0;}73%{opacity: 0;}74%{opacity: 0;}75%{opacity: 0;}76%{opacity: 0;}77%{opacity: 0;}78%{opacity: 0;}79%{opacity: 0;}
     80%{opacity: 0;}81%{opacity: 0;}82%{opacity: 0;}83%{opacity: 0;}84%{opacity: 0;}85%{opacity: 0;}86%{opacity: 0;}87%{opacity: 0;}88%{opacity: 0;}89%{opacity: 0;}
     90%{opacity: 0;}91%{opacity: 0;}92%{opacity: 0;}93%{opacity: 0;}94%{opacity: 0;}95%{opacity: 0;}96%{opacity: 0;}97%{opacity: 0;}98%{opacity: 0;}99%{opacity: 0;}

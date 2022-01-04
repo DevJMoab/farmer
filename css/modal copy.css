@@ -1,0 +1,330 @@
+.delete,.modal-close{
+    -webkit-touch-callout:none;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select:none;
+    -moz-appearance:none;
+    -webkit-appearance:none;
+    background-color:rgba(10,10,10,.2);
+    border:none;
+    border-radius:9999px;
+    cursor:pointer;
+    pointer-events:auto;
+    display:inline-block;
+    flex-grow:0;
+    flex-shrink:0;
+    font-size:0;
+    height:20px;
+    max-height:20px;
+    max-width:20px;
+    min-height:20px;
+    min-width:20px;
+    outline:0;
+    position:relative;
+    vertical-align:top;
+    width:20px
+}
+
+.delete::after,.delete::before,.modal-close::after,.modal-close::before{
+    background-color:#fff;
+    content:"";
+    display:block;
+    left:50%;
+    position:absolute;
+    top:50%;
+    transform:translateX(-50%) translateY(-50%) rotate(45deg);
+    transform-origin:center center
+}
+
+.delete::before,.modal-close::before{
+    height:2px;
+    width:50%
+}
+
+.delete::after,.modal-close::after{
+    height:50%;
+    width:2px
+}
+
+.delete:focus,.delete:hover,.modal-close:focus,.modal-close:hover{
+    background-color:rgba(10,10,10,.3)
+}
+
+.delete:active,.modal-close:active{
+    background-color:rgba(10,10,10,.4)
+}
+
+.is-small.delete,.is-small.modal-close{
+    height:16px;
+    max-height:16px;
+    max-width:16px;
+    min-height:16px;
+    min-width:16px;
+    width:16px
+}
+
+.is-medium.delete,.is-medium.modal-close{
+    height:24px;
+    max-height:24px;
+    max-width:24px;
+    min-height:24px;
+    min-width:24px;
+    width:24px
+}
+
+.is-large.delete,.is-large.modal-close{
+    height:32px;
+    max-height:32px;
+    max-width:32px;
+    min-height:32px;
+    min-width:32px;
+    width:32px
+}
+
+.button.is-loading::after,.control.is-loading::after,.loader,.select.is-loading::after{
+    -webkit-animation:spinAround .5s infinite linear;
+    animation:spinAround .5s infinite linear;
+    border:2px solid #dbdbdb;
+    border-radius:9999px;
+    border-right-color:transparent;
+    border-top-color:transparent;
+    content:"";
+    display:block;
+    height:1em;
+    position:relative;
+    width:1em
+}
+
+.hero-video,.image.is-16by9 .has-ratio,.image.is-16by9 img,.image.is-1by1 .has-ratio,.image.is-1by1 img,.image.is-1by2 .has-ratio,.image.is-1by2 img,.image.is-1by3 .has-ratio,.image.is-1by3 img,.image.is-2by1 .has-ratio,.image.is-2by1 img,.image.is-2by3 .has-ratio,.image.is-2by3 img,.image.is-3by1 .has-ratio,.image.is-3by1 img,.image.is-3by2 .has-ratio,.image.is-3by2 img,.image.is-3by4 .has-ratio,.image.is-3by4 img,.image.is-3by5 .has-ratio,.image.is-3by5 img,.image.is-4by3 .has-ratio,.image.is-4by3 img,.image.is-4by5 .has-ratio,.image.is-4by5 img,.image.is-5by3 .has-ratio,.image.is-5by3 img,.image.is-5by4 .has-ratio,.image.is-5by4 img,.image.is-9by16 .has-ratio,.image.is-9by16 img,.image.is-square .has-ratio,.image.is-square img,.is-overlay,.modal,.modal-background{
+    bottom:0;
+    left:0;
+    position:absolute;
+    right:0;
+    top:0
+}
+
+.modal{
+    align-items:center;
+    display:none;
+    flex-direction:column;
+    justify-content:center;
+    overflow:hidden;
+    position:fixed;
+    z-index:40
+}
+
+.modal.is-active{
+    display:flex;
+}
+
+.modal-background{
+    background-color:rgba(10,10,10,.86)
+}
+
+.modal-card,.modal-content{
+    margin:0 20px;
+    max-height:calc(100vh - 160px);
+    overflow:auto;position:relative;
+    width:100%
+}
+
+@media screen and (min-width:769px){
+    .modal-card,.modal-content{
+        margin:0 auto;
+        max-height:calc(100vh - 40px);
+        width:640px
+    }
+}
+.modal-close{
+    background:0 0;
+    height:40px;
+    position:fixed;
+    right:20px;
+    top:20px;
+    width:40px
+}
+
+.modal-card{
+    display:flex;
+    flex-direction:column;
+    max-height:calc(90vh - 130px);
+    border: 1px solid rgba(238, 223, 158, 0.26);
+    border-radius: 8px;
+    overflow:hidden;
+    -ms-overflow-y:visible
+}
+.modal-card .modal-card-head{
+    background-color: green;   
+}
+.throw{
+    
+    background: red;
+    border-radius: 15px;
+    width: 150px;
+    height: 20px;
+    margin: 0 40%;
+}
+
+.delete{
+    background-color: indianred;
+}
+
+.modal-card-foot,.modal-card-head{
+    align-items:center;
+    background-color:rgba(27, 27, 27, 0.719);
+    display:flex;
+    flex-shrink:0;
+    justify-content:flex-start;
+    padding:16px;
+    position:relative
+}
+
+.modal-card-head{
+    border-bottom:1px solid #1b1b1b;
+    border-top-left-radius:6px;
+    border-top-right-radius:6px
+}
+
+.modal-card-title{
+    color:#f1f1f1;
+    flex-grow:1;
+    flex-shrink:0;
+    font-size:1rem;
+    line-height:1
+}
+
+.modal-card-foot{
+    border-bottom-left-radius:6px;
+    border-bottom-right-radius:6px;
+    border-top:1px solid #1b1b1b
+}
+
+.modal-card-foot .button:not(:last-child){
+    margin-right:.5em
+}
+
+.modal-card-body{
+    -webkit-overflow-scrolling:touch;
+    background-color:rgba(97, 97, 97, 0.705);
+    flex-grow:1;
+    flex-shrink:1;
+    overflow:auto;
+    padding:20px;
+}
+
+/* -------------------- Modal table -------------------- */
+
+.modal{
+    position: absolute;
+}
+
+.modal thead tr.thead{
+    position:sticky;
+    background-color: #4141419a
+}
+
+.modal table tbody{
+    position: relative;
+    background: #5c5c5c9a;
+}
+.modal .modal-card-title{
+    text-align: center;
+}
+
+.modal table tbody tr:nth-child(even){
+    background: #8181819a;
+}
+
+.modal table tbody tr:hover{
+    background: rgba(247, 247, 247, 0.74);
+    color: rgb(46, 46, 46);
+}
+
+.modal table{
+    width: 100%;
+    color: rgb(243, 239, 239);
+    background: rgba(41, 40, 40, 0.63);
+    border: 1px solid rgba(255, 238, 182, 0.527);
+    border-radius: 8px;
+    font-size: 0.8rem;
+}
+
+.modal table tr th img{
+    width: 20px;
+    height: 20px;
+    filter: opacity(0.9);
+    vertical-align: middle;
+}
+
+.modal .money{
+    border: 1px solid rgba(41, 40, 40, 0.63);
+    border-radius: 16px;
+    background-color: rgba(41, 40, 40, 0.342);;
+    padding: 4px 8px;
+    display: flex;
+    justify-content: center;
+    margin: 0 auto;
+    color: #fff;
+}
+
+.modal .money img{
+    width: 20px;
+}
+
+.modal .icons{
+    filter: brightness(20%) opacity(30%) sepia(100%) 
+    hue-rotate(309deg) saturate(82%);
+}
+
+.modal .money p{
+    margin-left: 8px;
+}
+
+.modal table{
+    margin-top: 30px;
+}
+
+.modal table tbody tr img{
+    width: 42px;
+    height: 42px;
+}
+
+.modal table tbody button{
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    color: white;
+    background: #6C3515;
+    border: 1px solid #281006;
+    box-sizing: border-box;
+    box-shadow: inset 1px 4px 1px rgba(255, 255, 255, 0.25), inset 0px -13px 5px rgba(0, 0, 0, 0.25), inset 0px -4px 4px rgba(0, 0, 0, 0.45);
+    border-radius: 4px;
+}
+
+
+/*-------------------table-------------------*/
+
+.table{
+    background-color:#fff;
+    color:#363636;
+    border-collapse: collapse;
+    
+}
+
+.table td,.table th{
+    border:1px solid #dbdbdb;
+    border-width: 0 0 1px 0;
+    padding:.5em .75em;
+    text-align: center;
+}
+
+.table tr.tbody:hover{
+    background-color:#00d1b2;
+    color:#fff
+}
+
+
+.table thead td,.table thead th{
+    border-width:0 0 1px;
+    color:#363636
+}
