@@ -43,15 +43,13 @@
     border: 1px solid rgba(238, 223, 158, 0.26);
     border-radius: 8px;
     overflow:hidden;
-    -ms-overflow-y:visible;
 
     position: relative;
     z-index: 2;
-    min-width: 400px;
+    min-width: 360px;
     border-radius: 7px 7px 7px 7px;
     min-height: 60px;
     background: #B2A07C url(../assets/bg_patern.png);
-    -webkit-user-select: text;
 }
 
 .modal-card .modal-card-head{
@@ -77,13 +75,13 @@
     background: #3C3428;
 }
 
-.modal .modal-tabs li{
+.modal .modal-tabs .li{
     display: inline-block;
     height: 31px;
     margin: 0px 2px;
 }
 
-.modal .modal-tabs li{
+.modal .modal-tabs .li{
     display: inline-block;
     height: 31px;
     margin: 0px 2px;
@@ -124,7 +122,7 @@
     left: 7px;
     width: 30px;
     height: 30px;
-    background: url(../assets/tabs_pictT.png) no-repeat;
+    background: url(../assets/tabs_pictt.png) no-repeat;
 }
 
 .modal .modal-tabs .tab-social.active > a div {
@@ -175,6 +173,38 @@
     background-position: -30px -30px;
 }
 
+@media screen and (max-width:1388px){
+    
+    .modal .modal-tabs .li{
+        width: 43px;
+        margin: 0 15px;
+    }
+    .modal .modal-tabs a span{
+        display: none;
+    }
+    .modal .modal-tabs a div{
+        left: 30%;
+    }
+
+}
+
+@media screen and (max-width:870px){
+    .modal .modal-tabs .li{
+        width: 45px;
+        margin: 0 2px;
+    }
+    .modal .modal-tabs a {
+        padding: 0px;
+    }
+    .modal .modal-tabs a div{
+        left: 10%;
+    }
+}
+@media screen and (max-width:360px){
+    .modal-card, .modal-content{
+        width: 100px;
+    }
+}
 /*---------------------------------------------------------------------------------------------*/
 .throw{
     margin: 0 auto;
@@ -269,7 +299,13 @@
         margin:0 auto;
         max-height:calc(100vh - 40px);
         width:100%;
+        font-size: 14px;
     }
+
+    .modal table{
+        font-size: 10px; !important
+    }
+
 }
 
 /* -------------------- Modal table -------------------- */
@@ -316,7 +352,12 @@
     color: #494334;
     background: #8376600e;
     border: 1px solid #786C56;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
+}
+
+.modal table .th-name{
+    text-align: left;
+    padding-left: 20px;
 }
 
 .modal table tr th img{
@@ -324,6 +365,26 @@
     height: 20px;
     filter: opacity(0.9);
     vertical-align: middle;
+}
+
+.modal table tr td .level{
+    margin: 0 auto;
+    width: 30px;
+    height: 30px;
+    background: url(../assets/levelss.png) no-repeat;
+}
+
+.modal table tr td .l1 {
+    background-position: 0px 0px;
+}
+.modal table tr td .l2 {
+    background-position: -35px 0px;
+}
+.modal table tr td .l3 {
+    background-position: -70px 0px;
+}
+.modal table tr td .l4 {
+    background-position: -105px 0px;
 }
 
 .modal .money{

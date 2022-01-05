@@ -1,10 +1,19 @@
-const openModal =  document.getElementById('openRegisterModal')
 const modal = document.getElementById('modal')
 const closeModal = document.getElementById('closeModal')
+const openBuildingsM = document.getElementById('openBuildingsModal')
 
-const showRegisterModal = ()=>{
+const link = document.getElementById('ui');
+const openTab = document.getElementById('tab');
+
+const showBuildingModal = ()=>{
     modal.classList.toggle('is-active')
 }
 
-openModal.addEventListener('click', showRegisterModal)
-closeModal.addEventListener('click', showRegisterModal)
+const activeTab = ()=>{
+    link.classList.toggle('active');
+}
+
+openBuildingsM.addEventListener('click', showBuildingModal)
+closeModal.addEventListener('click', showBuildingModal)
+openTab.addEventListener('click', activeTab)
+
