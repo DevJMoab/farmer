@@ -1,3 +1,4 @@
+/*---------------- botoes flutuantes--------------------*/
 @media screen and (max-width:680px){
     .container-header .timer{
         display:none;
@@ -23,3 +24,145 @@
         opacity: 1;
     }
 }
+/*------------------------------------------------------*/
+
+/*------------------- modal tabs -----------------------*/
+
+@media screen and (max-width:1510px){
+    
+    .modal .modal-tabs .list-tab{
+        width: 43px;
+        margin: 0 15px;
+    }
+    .modal .modal-tabs a span{
+        display: none;
+    }
+    .modal .modal-tabs a div{
+        left: 30%;
+    }
+
+}
+
+@media screen and (max-width:935px){
+    .modal .modal-tabs .list-tab{
+        width: 45px;
+        margin: 0 2px;
+    }
+    .modal .modal-tabs a {
+        padding: 0px;
+    }
+    .modal .modal-tabs a div{
+        left: 10%;
+    }
+}
+
+@media screen and (max-width:769px){
+    .modal-card,.modal-content{
+        margin:0 auto;
+        max-height:calc(100vh - 40px);
+        width:100%;
+        font-size: 14px;
+    }
+
+    .modal table{
+        font-size: 12px !important;
+    }
+
+}
+
+@media screen and (max-width:360px){
+    .modal .modal-tabs .list-tab{
+        width: 35px;
+        margin: 0 1px;
+    }
+    .modal-card, .modal-content{
+        width: 100px;
+    }
+    .modal table{
+        font-size: 11px !important;
+    }
+
+    .modal .modal-tabs .tab-all.active > a div {
+        background-position: -123px -28px;
+    }
+    
+    .modal .modal-tabs .tab-all a div {
+        background-position: -149px -28px;
+    }
+    
+    .modal .modal-tabs .tab-social.active > a div {
+        background-position: -3px 0px;
+    }
+    
+    .modal .modal-tabs .tab-social a div {
+        background-position: -31px 0px;
+    }
+    
+    .modal .modal-tabs .tab-animals.active > a div {
+        background-position: -63px 0px;
+    }
+    
+    .modal .modal-tabs .tab-animals a div {
+        background-position: -93px 0px;
+    }
+    
+    .modal .modal-tabs .tab-production.active > a div {
+        background-position: -123px 0px;
+    }
+    
+    .modal .modal-tabs .tab-production a div {
+        background-position: -153px 0px;
+    }
+    
+    .modal .modal-tabs .tab-storage.active > a div {
+        background-position: -183px 2px;
+    }
+    
+    .modal .modal-tabs .tab-storage a div {
+        background-position: -212px 2px;
+    }
+    
+    .modal .modal-tabs .tab-machines.active > a div {
+        background-position: -242px 0px;
+    }
+    
+    .modal .modal-tabs .tab-machines a div {
+        background-position: -269px 0px;
+    }
+    
+    .modal .modal-tabs .tab-crops.active > a div {
+        background-position: -3px -30px;
+    }
+    
+    .modal .modal-tabs .tab-crops a div {
+        background-position: -32px -28px;
+    }
+    
+    .modal .modal-tabs .tab-others.active > a div {
+        background-position: -62px -28px;
+    }
+    
+    .modal .modal-tabs .tab-others a div {
+        background-position: -92px -28px;
+    }
+
+    /*-------------------- scrollbar --------------------*/
+
+*::-webkit-scrollbar {
+    width: 5px;
+}
+  
+*::-webkit-scrollbar-track {
+    background: #5c5c5c00;
+}
+  
+*::-webkit-scrollbar-thumb {
+    background-color: #3b3b3bad;
+    height: 200px;
+    border-radius: 50px;
+    border: 1px solid #5c5c5c9a;
+}
+
+/*---------------------------------------------------------------------------*/
+}
+/*------------------------------------------------------*/
