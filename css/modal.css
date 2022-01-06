@@ -20,7 +20,7 @@
     margin:0 20px;
     max-height:calc(120vh - 160px);
     overflow:auto;position:relative;
-    width:60%;
+    width:70%;
     height: 80%;
     top:0;
 }
@@ -75,13 +75,7 @@
     background: #3C3428;
 }
 
-.modal .modal-tabs .li{
-    display: inline-block;
-    height: 31px;
-    margin: 0px 2px;
-}
-
-.modal .modal-tabs .li{
+.modal .modal-tabs .list-tab{
     display: inline-block;
     height: 31px;
     margin: 0px 2px;
@@ -125,6 +119,14 @@
     background: url(../assets/tabs_pictt.png) no-repeat;
 }
 
+.modal .modal-tabs .tab-all.active > a div {
+    background-position: -123px -28px;
+}
+
+.modal .modal-tabs .tab-all a div {
+    background-position: -150px -28px;
+}
+
 .modal .modal-tabs .tab-social.active > a div {
     background-position: 0px 0px;
 }
@@ -150,11 +152,11 @@
 }
 
 .modal .modal-tabs .tab-storage.active > a div {
-    background-position: -180px 0px;
+    background-position: -180px 2px;
 }
 
 .modal .modal-tabs .tab-storage a div {
-    background-position: -210px 0px;
+    background-position: -210px 2px;
 }
 
 .modal .modal-tabs .tab-machines.active > a div {
@@ -165,17 +167,25 @@
     background-position: -267px 0px;
 }
 
-.modal .modal-tabs .tab-others.active > a div {
+.modal .modal-tabs .tab-crops.active > a div {
     background-position: 0px -30px;
 }
 
+.modal .modal-tabs .tab-crops a div {
+    background-position: -30px -28px;
+}
+
+.modal .modal-tabs .tab-others.active > a div {
+    background-position: -60px -28px;
+}
+
 .modal .modal-tabs .tab-others a div {
-    background-position: -30px -30px;
+    background-position: -90px -28px;
 }
 
 @media screen and (max-width:1388px){
     
-    .modal .modal-tabs .li{
+    .modal .modal-tabs .list-tab{
         width: 43px;
         margin: 0 15px;
     }
@@ -189,7 +199,7 @@
 }
 
 @media screen and (max-width:870px){
-    .modal .modal-tabs .li{
+    .modal .modal-tabs .list-tab{
         width: 45px;
         margin: 0 2px;
     }
@@ -303,7 +313,7 @@
     }
 
     .modal table{
-        font-size: 10px; !important
+        font-size: 10px !important;
     }
 
 }
@@ -333,6 +343,48 @@
 
 .modal table tbody tr:nth-child(even){
     background: #97886aa4;
+}
+.modal table tbody.social > tr:nth-child(n+4){
+    display:none;
+}
+
+.modal table tbody.animal  tr:nth-child(-n+3) {
+    display:none;
+}
+.modal table tbody.animals  tr:nth-child(n+14) {
+    display:none;
+}
+
+.modal table tbody.production  tr:nth-child(-n+24) {
+    display:none;
+}
+.modal table tbody.productions  tr:nth-child(n+39) {
+    display:none;
+}
+
+.modal table tbody.storage  tr:nth-child(-n+19) {
+    display:none;
+}
+.modal table tbody.storages  tr:nth-child(n+25) {
+    display:none;
+}
+
+.modal table tbody.crop  tr:nth-child(-n+13) {
+    display:none;
+}
+.modal table tbody.crops  tr:nth-child(n+18) {
+    display:none;
+}
+
+.modal table tbody.machine  tr:nth-child(-n+17) {
+    display:none;
+}
+.modal table tbody.machines  tr:nth-child(n+20) {
+    display:none;
+}
+
+.modal table tbody.others  tr:nth-child(-n+38) {
+    display: none;
 }
 
 .modal table tbody tr:hover{
