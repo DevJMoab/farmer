@@ -67,6 +67,7 @@ others.addEventListener('click', () => {
 
 sun.addEventListener('click', () => {
     climate.classList.remove('cloudy', 'rain')
+    climate.removeAttribute('div')
     climate.removeAttribute('id','snow')
 })
 rain.addEventListener('click', () => {
