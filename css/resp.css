@@ -6,7 +6,7 @@
     .side-bar{
         top: 10%;
     }
-    .bubble img{
+    .bubble-timer img{
         opacity: 1;
     }
 }
@@ -20,7 +20,7 @@
         visibility: visible;
     }
 
-    .bubble.weather img{
+    .bubble-weather.sun img{
         opacity: 1;
     }
 }

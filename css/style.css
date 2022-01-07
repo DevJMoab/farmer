@@ -14,16 +14,17 @@
     font-family: Palatino,'Dosis', sans-serif;
 }
 body{
-    background: url(../assets/e1.png) 50% 100%;
-    background-color: #99cc33;
-}
-
-.app{
     position: absolute;
     background: url(../assets/E1.png) no-repeat;
     width: 100%;
     height: 100%;
     z-index: 0;
+    /*background: url(../assets/e1.png) 50% 100%;
+    background-color: #99cc33;*/
+}
+
+.app{
+    
 }
 
 .bar{
@@ -200,7 +201,7 @@ body{
 
 /**************** rain *******************/
 
-#rain{
+.rain{
     height: 100vh;
     background:rgba(8, 8, 8, 0.5);
     background-image: url(../assets/icons/rain.png);
@@ -208,9 +209,11 @@ body{
     z-index: 0;
 }
 
-#rain:before{
+.rain:before{
     content: '';
     position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     background: white;
@@ -270,17 +273,17 @@ body{
 
 /*---------------------------------------------------------------------------*/
 
-.bubble img{
+.bubble-timer img{
     opacity: 0;
     position: absolute;
     background: rgba(63, 31, 6, 0.8);
 }
 
-.bubble img:hover{
+.bubble-timer img:hover{
     background: rgba(139, 127, 19, 0.712);
 }
 
-.bubble.play img{
+.bubble-timer.play img{
     bottom: 25px;
     left: 20px;
     width: 40px;
@@ -289,53 +292,80 @@ body{
 
 }
 
-.bubble img{
+.bubble-timer img{
     width: 30px;
     height: 30px;
     border-radius: 15px;
 }
 
-.bubble.pause img{
+.bubble-timer.pause img{
     bottom: 70px;
     left: 15px;
     }
 
-.bubble.umx img{
+.bubble-timer.umx img{
     bottom: 63px;
     left: 48px;
 }
 
-.bubble.doisx img{
+.bubble-timer.doisx img{
     bottom: 35px;
     left: 68px;
 }
 
-.bubble.tresx img{
+.bubble-timer.tresx img{
     bottom: 2px;
     left: 55px;
 }
 
-.bubble.weather img{
-    opacity: 0;
+.bubble-weather{
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+}
+
+.bubble-weather img{
+    opacity: 1;
     width: 30px;
     height: 30px;
-    border-radius: 25px;
-    padding: 4px;
+    padding: 5px;
+    background: rgba(63, 31, 6, 0.8);
+    border-radius: 15px;
+}
+
+/*.bubble-weather img:hover{
+    background: rgba(139, 127, 19, 0.712);
+}*/
+
+.bubble-weather .sun {
+    position: absolute;
     bottom: 15px;
     right: 15px;
 }
-
-.bb{
-    visibility: hidden;
+.bubble-weather .prima{
+    position: absolute;
+    bottom: 15px;
+    right: 50px;
+}
+.bubble-weather .out{
+    position: absolute;
+    bottom: 15px;
+    right: 85px;
+}
+.bubble-weather .inv{
+    position: absolute;
+    bottom: 15px;
+    right: 120px;
 }
 
-.bubble.weather div{
+.bubble-weather .sun > div{
     opacity: 0;
     display:block;
     position:absolute;
-    top: 560px;
-    right: 10px;
+    top: -50px;
+    right: 0px;
     width:8em;
+    font-size: 13px;
     color:#fff;
     background:rgba(153, 153, 153,0.7);
     text-shadow: 1px 1px 1px black;
@@ -343,6 +373,6 @@ body{
     padding:5px;
 }
 
-.bubble.weather:hover > div{
+.bubble-weather .sun:hover > div{
     opacity: 1;
 }
