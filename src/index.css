@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* =============================================
+   FARMER — Keyframes de Clima e Estações
+   ============================================= */
+
+/* Chuva — gotas caindo na diagonal */
+@keyframes rainfall {
+  0% {
+    transform: translateY(-20px) translateX(0px);
+    opacity: 0;
+  }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% {
+    transform: translateY(100vh) translateX(-30px);
+    opacity: 0;
+  }
+}
+
+/* Neve — floco balançando ao cair */
+@keyframes snowfall {
+  0% {
+    transform: translateY(-20px) translateX(0px);
+    opacity: 0;
+  }
+  10% { opacity: 1; }
+  50% {
+    transform: translateY(40vh) translateX(var(--sway, 40px));
+  }
+  90% { opacity: 0.9; }
+  100% {
+    transform: translateY(100vh) translateX(0px);
+    opacity: 0;
+  }
+}
+
+/* Pétalas — giram e caem suavemente */
+@keyframes petalfall {
+  0% {
+    transform: translateY(-20px) translateX(0px) rotate(0deg);
+    opacity: 0;
+  }
+  10% { opacity: 0.85; }
+  50% {
+    transform: translateY(40vh) translateX(var(--sway, 60px)) rotate(180deg);
+  }
+  90% { opacity: 0.7; }
+  100% {
+    transform: translateY(100vh) translateX(0px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Vinheta — sempre presente, simples e silenciosa */
+.vignette {
+  background: radial-gradient(ellipse at center, transparent 35%, rgba(0, 0, 0, 0.65) 100%);
+  pointer-events: none;
+}
+
+/* Input Range Personalizado para o Slider de Escala */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+
+input[type="range"]::-webkit-slider-track {
+  height: 6px;
+  background: rgba(100, 116, 139, 0.6);
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 2px solid #16a34a;
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
+  margin-top: -6px;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 2px solid #16a34a;
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
+}
