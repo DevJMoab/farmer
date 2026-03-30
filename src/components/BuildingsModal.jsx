@@ -3,39 +3,43 @@ import React, { useState } from 'react';
 // Catálogo completo de todas as construções disponíveis em /STAGE 1/buildings/
 const BUILDINGS = [
   // SOCIAL
-  { id: 'sede',              name: 'Sede da Fazenda',     category: 'Social',      level: 1, cost: 85000  },
+  { id: 'sede', name: 'Sede da Fazenda', category: 'Social', level: 1, cost: 85000 },
   // ANIMALS
-  { id: 'curral',            name: 'Curral',              category: 'Animals',     level: 1, cost: 28000  },
-  { id: 'aprisco',           name: 'Aprisco',             category: 'Animals',     level: 1, cost: 22000  },
-  { id: 'pocilga',           name: 'Pocilga',             category: 'Animals',     level: 1, cost: 19500  },
-  { id: 'estabulo',          name: 'Estábulo',            category: 'Animals',     level: 1, cost: 35000  },
-  { id: 'galinhas',          name: 'Galinheiro',          category: 'Animals',     level: 1, cost: 18000  },
-  { id: 'patos',             name: 'Patos',               category: 'Animals',     level: 1, cost: 15000  },
-  { id: 'codornas',          name: 'Codornas',            category: 'Animals',     level: 1, cost: 12000  },
-  { id: 'avestrus',          name: 'Avestruzes',          category: 'Animals',     level: 1, cost: 25000  },
-  { id: 'viveirosParaPeixes',name: 'Viveiros para Peixes',category: 'Animals',     level: 1, cost: 18000  },
+  { id: 'curral', name: 'Curral', category: 'Animals', level: 1, cost: 28000 },
+  { id: 'aprisco', name: 'Aprisco', category: 'Animals', level: 1, cost: 22000 },
+  { id: 'pocilga', name: 'Pocilga', category: 'Animals', level: 1, cost: 19500 },
+  { id: 'estabulo', name: 'Estábulo', category: 'Animals', level: 1, cost: 35000 },
+  { id: 'galinhas', name: 'Galinheiro', category: 'Animals', level: 1, cost: 18000 },
+  { id: 'patos', name: 'Patos', category: 'Animals', level: 1, cost: 15000 },
+  { id: 'codornas', name: 'Codornas', category: 'Animals', level: 1, cost: 12000 },
+  { id: 'avestrus', name: 'Avestruzes', category: 'Animals', level: 1, cost: 25000 },
+  { id: 'viveirosParaPeixes', name: 'Viveiros para Peixes', category: 'Animals', level: 1, cost: 18000 },
   // PRODUCTION
-  { id: 'pomar',             name: 'Pomar',               category: 'Production',  level: 1, cost: 32000  },
-  { id: 'horta',             name: 'Horta',               category: 'Production',  level: 1, cost: 14000  },
-  { id: 'estufas',           name: 'Estufas',             category: 'Production',  level: 1, cost: 45000  },
-  { id: 'moinho',            name: 'Moinho',              category: 'Production',  level: 1, cost: 38000  },
-  { id: 'processamento',     name: 'Processamento',       category: 'Production',  level: 1, cost: 55000  },
+  { id: 'pomar', name: 'Pomar', category: 'Production', level: 1, cost: 32000 },
+  { id: 'horta', name: 'Horta', category: 'Production', level: 1, cost: 14000 },
+  { id: 'estufas', name: 'Estufas', category: 'Production', level: 1, cost: 45000 },
+  { id: 'moinho', name: 'Moinho', category: 'Production', level: 1, cost: 38000 },
+  { id: 'processamento', name: 'Processamento', category: 'Production', level: 1, cost: 55000 },
   // CROPS
-  { id: 'campo',             name: 'Campo de Cultivo',    category: 'Crops',       level: 1, cost: 20000  },
+  { id: 'campo', name: 'Campo de Cultivo', category: 'Crops', level: 1, cost: 20000 },
   // STORAGE
-  { id: 'celeiro',           name: 'Celeiro',             category: 'Storage',     level: 1, cost: 16897  },
-  { id: 'silo',              name: 'Silo',                category: 'Storage',     level: 1, cost: 25000  },
-  { id: 'silagem',           name: 'Silagem',             category: 'Storage',     level: 1, cost: 18000  },
-  { id: 'estoque',           name: 'Estoque',             category: 'Storage',     level: 1, cost: 12000  },
+  { id: 'celeiro', name: 'Celeiro', category: 'Storage', level: 1, cost: 16897 },
+  { id: 'silo', name: 'Silo', category: 'Storage', level: 1, cost: 25000 },
+  { id: 'silagem', name: 'Silagem', category: 'Storage', level: 1, cost: 18000 },
+  { id: 'estoque', name: 'Estoque', category: 'Storage', level: 1, cost: 12000 },
   // MACHINES
-  { id: 'garagem',           name: 'Garagem',             category: 'Machines',    level: 1, cost: 30000  },
-  { id: 'oficina',           name: 'Oficina',             category: 'Machines',    level: 1, cost: 28000  },
-  { id: 'logistica',         name: 'Logística',           category: 'Machines',    level: 1, cost: 22000  },
+  { id: 'garagem', name: 'Garagem', category: 'Machines', level: 1, cost: 30000 },
+  { id: 'oficina', name: 'Oficina', category: 'Machines', level: 1, cost: 28000 },
+  { id: 'logistica', name: 'Logística', category: 'Machines', level: 1, cost: 22000 },
   // OTHERS
-  { id: 'esterco',           name: 'Esterco',             category: 'Others',      level: 1, cost: 8000   },
+  { id: 'esterco', name: 'Esterco', category: 'Others', level: 1, cost: 8000 },
+  // DECORATIONS
+  { id: 'arvore1', name: 'Árvore 1', category: 'Decorations', level: 1, cost: 50 },
+  { id: 'arvore2', name: 'Árvore 2', category: 'Decorations', level: 1, cost: 50 },
+  { id: 'arvore3', name: 'Árvore 3', category: 'Decorations', level: 1, cost: 50 },
 ];
 
-const TABS = ['All', 'Social', 'Animals', 'Production', 'Crops', 'Storage', 'Machines', 'Others'];
+const TABS = ['All', 'Social', 'Animals', 'Production', 'Crops', 'Storage', 'Machines', 'Decorations', 'Others'];
 
 const fmt = (v) => new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(v);
 
@@ -51,7 +55,7 @@ function BuildingThumb({ id }) {
   }
   return (
     <img
-      src={`/assets/STAGE 1/buildings/${id}.png`}
+      src={`/assets/STAGE 1/buildings/${id}.svg`}
       alt={id}
       className="w-14 h-14 object-contain rounded-lg bg-slate-50"
       onError={() => setErr(true)}
@@ -80,7 +84,7 @@ export function BuildingsModal({ isOpen, onClose, onBuild, money = 0 }) {
         <header className="bg-slate-100 p-5 flex justify-between items-center border-b border-slate-300 flex-shrink-0">
           <div className="flex items-center gap-3">
             <div className="bg-sky-100 p-2 rounded-xl">
-              <img src="/assets/icons/hammer.svg" alt="hammer" className="w-6 h-6" onError={() => {}} />
+              <img src="/assets/icons/hammer.svg" alt="hammer" className="w-6 h-6" onError={() => { }} />
             </div>
             <div>
               <h2 className="text-xl font-black text-slate-800 tracking-wide uppercase">Construções</h2>
@@ -108,16 +112,14 @@ export function BuildingsModal({ isOpen, onClose, onBuild, money = 0 }) {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-3 font-bold text-xs uppercase tracking-wider transition-colors border-b-4 whitespace-nowrap flex items-center gap-1.5 ${
-                  activeTab === tab
-                    ? 'border-sky-500 text-sky-700 bg-white'
-                    : 'border-transparent text-slate-500 hover:bg-slate-200'
-                }`}
+                className={`px-4 py-3 font-bold text-xs uppercase tracking-wider transition-colors border-b-4 whitespace-nowrap flex items-center gap-1.5 ${activeTab === tab
+                  ? 'border-sky-500 text-sky-700 bg-white'
+                  : 'border-transparent text-slate-500 hover:bg-slate-200'
+                  }`}
               >
                 {tab}
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
-                  activeTab === tab ? 'bg-sky-100 text-sky-700' : 'bg-slate-200 text-slate-500'
-                }`}>{count}</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${activeTab === tab ? 'bg-sky-100 text-sky-700' : 'bg-slate-200 text-slate-500'
+                  }`}>{count}</span>
               </button>
             );
           })}
@@ -131,11 +133,10 @@ export function BuildingsModal({ isOpen, onClose, onBuild, money = 0 }) {
               return (
                 <div
                   key={b.id}
-                  className={`flex items-center gap-3 p-3 rounded-2xl border-2 transition-all ${
-                    canAfford
-                      ? 'bg-white border-slate-200 hover:border-sky-300 hover:shadow-md'
-                      : 'bg-slate-50 border-slate-100 opacity-60'
-                  }`}
+                  className={`flex items-center gap-3 p-3 rounded-2xl border-2 transition-all ${canAfford
+                    ? 'bg-white border-slate-200 hover:border-sky-300 hover:shadow-md'
+                    : 'bg-slate-50 border-slate-100 opacity-60'
+                    }`}
                 >
                   {/* Thumbnail */}
                   <BuildingThumb id={b.id} />
@@ -157,11 +158,10 @@ export function BuildingsModal({ isOpen, onClose, onBuild, money = 0 }) {
                   <button
                     disabled={!canAfford}
                     onClick={() => { if (onBuild) onBuild(b.id, b.cost); onClose(); }}
-                    className={`flex-shrink-0 font-black py-2 px-4 rounded-xl transition-all text-sm ${
-                      canAfford
-                        ? 'bg-gradient-to-b from-sky-400 to-sky-600 hover:from-sky-500 hover:to-sky-700 text-white shadow-[0_4px_0_0_#0369a1] active:translate-y-1 active:shadow-none'
-                        : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                    }`}
+                    className={`flex-shrink-0 font-black py-2 px-4 rounded-xl transition-all text-sm ${canAfford
+                      ? 'bg-gradient-to-b from-sky-400 to-sky-600 hover:from-sky-500 hover:to-sky-700 text-white shadow-[0_4px_0_0_#0369a1] active:translate-y-1 active:shadow-none'
+                      : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                      }`}
                   >
                     {canAfford ? '+ Construir' : '💸'}
                   </button>

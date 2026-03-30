@@ -28,6 +28,25 @@ function App() {
   const [isBuildingsModalOpen, setIsBuildingsModalOpen] = useState(false);
   const [isLandModalOpen, setIsLandModalOpen] = useState(false);
 
+  // MEASURING TOOL STATE
+  const [isMeasuringMode, setIsMeasuringMode] = useState(false);
+  const [measurePoints, setMeasurePoints] = useState([]); // Array of 4 {x, y} coordinate objects
+  const [drawingRect, setDrawingRect] = useState(null); // { startX, startY, currentX, currentY }
+  const [dragContext, setDragContext] = useState(null); // { type: 'point' | 'edge', index, startMouseX, startMouseY, startP1, startP2 }
+
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') {
+        setIsMeasuringMode(false);
+        setMeasurePoints([]);
+        setDrawingRect(null);
+        setDragContext(null);
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, []);
+
   // Z-index do preview (para controlar profundidade antes de gravar)
   const [previewZIndex, setPreviewZIndex] = useState(10);
 
@@ -97,23 +116,10 @@ function App() {
   // MOTOR DE ECONOMIA
   // =============================================
   const handleBuildInitiate = useCallback((buildingId, cost) => {
-    if (buildingId === 'sede') {
-      if (gameState.money < cost) {
-        showToast('❌ Saldo insuficiente para construir a Sede!', 'error');
-        return;
-      }
-      setGameState(prev => ({
-        ...prev,
-        baseMap: 'E0',
-        money: prev.money - cost,
-        buildings: [...prev.buildings, { id: buildingId, x: 0, y: 0, scale: 10 }],
-      }));
-    } else {
-      setPlacementMode({ id: buildingId, cost });
-      setPreviewPlacement(null);
-      setPreviewScale(8);
-      setPreviewZIndex(10); // reset z-index para cada nova construção
-    }
+    setPlacementMode({ id: buildingId, cost });
+    setPreviewPlacement(null);
+    setPreviewScale(8);
+    setPreviewZIndex(10); // reset z-index para cada nova construção
   }, [gameState.money]);
 
   const showToast = (message, type = 'info') => {
@@ -130,8 +136,8 @@ function App() {
   const isInsideOwnedSector = useCallback((x, y) => {
     // Por ora, verificação simplificada pelo setor central
     if (gameState.ownedSectors.includes('center') &&
-        x >= CENTER_SECTOR_BOUNDS.minX && x <= CENTER_SECTOR_BOUNDS.maxX &&
-        y >= CENTER_SECTOR_BOUNDS.minY && y <= CENTER_SECTOR_BOUNDS.maxY) return true;
+      x >= CENTER_SECTOR_BOUNDS.minX && x <= CENTER_SECTOR_BOUNDS.maxX &&
+      y >= CENTER_SECTOR_BOUNDS.minY && y <= CENTER_SECTOR_BOUNDS.maxY) return true;
     return false;
   }, [gameState.ownedSectors]);
 
@@ -205,11 +211,60 @@ function App() {
 
   const handleMouseDown = useCallback((e) => {
     if (placementMode && e.button === 0) return;
+
+    // Início do desenho da área quadrada
+    if (isMeasuringMode && measurePoints.length === 0 && mapRef.current) {
+      const rect = mapRef.current.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      setDrawingRect({ startX: x, startY: y, currentX: x, currentY: y });
+      return;
+    }
+
     setIsPanning(true);
     startPanRef.current = { x: e.clientX - transform.x, y: e.clientY - transform.y };
-  }, [placementMode, transform.x, transform.y]);
+  }, [placementMode, transform.x, transform.y, isMeasuringMode, measurePoints.length]);
 
   const handleMouseMove = useCallback((e) => {
+    if (drawingRect && mapRef.current) {
+      const rect = mapRef.current.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      setDrawingRect(prev => ({ ...prev, currentX: x, currentY: y }));
+      return;
+    }
+
+    if (dragContext !== null && mapRef.current) {
+      const rect = mapRef.current.getBoundingClientRect();
+      const mouseX = ((e.clientX - rect.left) / rect.width) * 100;
+      const mouseY = ((e.clientY - rect.top) / rect.height) * 100;
+
+      setMeasurePoints(prev => {
+        const np = [...prev];
+        const dx = mouseX - dragContext.startMouseX;
+        const dy = mouseY - dragContext.startMouseY;
+
+        if (dragContext.type === 'point') {
+          np[dragContext.index] = {
+            x: dragContext.startP1.x + dx,
+            y: dragContext.startP1.y + dy
+          };
+        } else if (dragContext.type === 'edge') {
+          np[dragContext.index] = {
+            x: dragContext.startP1.x + dx,
+            y: dragContext.startP1.y + dy
+          };
+          const nextIdx = (dragContext.index + 1) % 4;
+          np[nextIdx] = {
+            x: dragContext.startP2.x + dx,
+            y: dragContext.startP2.y + dy
+          };
+        }
+        return np;
+      });
+      return;
+    }
+
     if (placementMode && !previewPlacement && mapRef.current) {
       const rect = mapRef.current.getBoundingClientRect();
       setMousePos({
@@ -219,9 +274,27 @@ function App() {
     }
     if (!isPanning) return;
     setTransform(prev => ({ ...prev, x: e.clientX - startPanRef.current.x, y: e.clientY - startPanRef.current.y }));
-  }, [placementMode, previewPlacement, isPanning]);
+  }, [placementMode, previewPlacement, isPanning, drawingRect, dragContext]);
 
-  const handleMouseUp = useCallback(() => setIsPanning(false), []);
+  const handleMouseUp = useCallback(() => {
+    if (drawingRect) {
+      const p1 = { x: drawingRect.startX, y: drawingRect.startY };
+      const p2 = { x: drawingRect.currentX, y: drawingRect.startY };
+      const p3 = { x: drawingRect.currentX, y: drawingRect.currentY };
+      const p4 = { x: drawingRect.startX, y: drawingRect.currentY };
+      // prevent tiny accidental clicks from creating polygons
+      if (Math.abs(drawingRect.startX - drawingRect.currentX) > 1) {
+        setMeasurePoints([p1, p2, p3, p4]);
+      }
+      setDrawingRect(null);
+    }
+
+    if (dragContext !== null) {
+      setDragContext(null);
+    }
+
+    setIsPanning(false);
+  }, [drawingRect, dragContext]);
 
   // Touch support para mobile
   const touchRef = useRef(null);
@@ -268,7 +341,7 @@ function App() {
 
   return (
     <div className="h-screen w-screen relative overflow-hidden flex flex-col font-sans select-none bg-[#99cc33]">
-      
+
       {/* VINHETA — sempre presente nas bordas */}
       <div className="vignette absolute inset-0 z-[100] pointer-events-none" />
 
@@ -321,10 +394,10 @@ function App() {
           <WorldDecor />
 
           {/* CONSTRUÇÕES CONFIRMADAS */}
-          {gameState.buildings.filter(b => b.id !== 'sede').map((b, idx) => (
+          {gameState.buildings.map((b, idx) => (
             <img
               key={idx}
-              src={`/assets/STAGE 1/buildings/${b.id}.png`}
+              src={`/assets/STAGE 1/buildings/${b.id}.svg`}
               alt={b.id}
               className="absolute pointer-events-none drop-shadow-xl"
               style={{ top: `${b.y}%`, left: `${b.x}%`, transform: 'translate(-50%, -50%)', width: `${b.scale || 8}%`, zIndex: b.zIndex || 10 }}
@@ -334,7 +407,7 @@ function App() {
           {/* PREVIEW DO HOVER */}
           {placementMode && !previewPlacement && (
             <img
-              src={`/assets/STAGE 1/buildings/${placementMode.id}.png`}
+              src={`/assets/STAGE 1/buildings/${placementMode.id}.svg`}
               alt="preview_hover"
               className="absolute pointer-events-none opacity-60 z-20"
               style={{
@@ -346,6 +419,123 @@ function App() {
             />
           )}
 
+          {/* MEDIDOR ISOMÉTRICO AVANÇADO */}
+          {isMeasuringMode && (
+            <svg width="100%" height="100%" className="absolute inset-0 z-[160] overflow-visible pointer-events-none">
+              {/* Retângulo sendo desenhado */}
+              {drawingRect && (
+                <rect
+                  x={`${Math.min(drawingRect.startX, drawingRect.currentX)}%`}
+                  y={`${Math.min(drawingRect.startY, drawingRect.currentY)}%`}
+                  width={`${Math.abs(drawingRect.startX - drawingRect.currentX)}%`}
+                  height={`${Math.abs(drawingRect.startY - drawingRect.currentY)}%`}
+                  fill="rgba(168, 85, 247, 0.2)"
+                  stroke="#a855f7"
+                  strokeWidth="2"
+                  strokeDasharray="4 4"
+                  style={{ pointerEvents: 'none' }}
+                />
+              )}
+
+              {/* Polígono e Linhas/Ângulos */}
+              {measurePoints.length === 4 && measurePoints.map((p, i) => {
+                const nextP = measurePoints[(i + 1) % 4];
+                const dx = nextP.x - p.x;
+                const dy = nextP.y - p.y;
+                const pixelDx = dx * 10.2;
+                const pixelDy = dy * 10.2;
+                const dist = Math.sqrt(pixelDx * pixelDx + pixelDy * pixelDy).toFixed(1);
+
+                let angle = Math.atan2(pixelDy, pixelDx) * (180 / Math.PI);
+                if (angle < 0) angle += 360;
+
+                // Evitar texto de ponta-cabeça
+                let textAngle = angle;
+                if (textAngle > 90 && textAngle < 270) {
+                  textAngle -= 180;
+                }
+                const angleFormatted = angle.toFixed(1);
+
+                const midX = p.x + dx / 2;
+                const midY = p.y + dy / 2;
+
+                return (
+                  <g key={`edge-${i}`}>
+                    {/* Bounding box invisível grossa para o mouse hover/drag */}
+                    <line
+                      x1={`${p.x}%`} y1={`${p.y}%`}
+                      x2={`${nextP.x}%`} y2={`${nextP.y}%`}
+                      stroke="transparent" strokeWidth={24 / transform.scale}
+                      className="cursor-move"
+                      style={{ pointerEvents: 'auto' }}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (!mapRef.current) return;
+                        const rect = mapRef.current.getBoundingClientRect();
+                        setDragContext({
+                          type: 'edge', index: i,
+                          startMouseX: ((e.clientX - rect.left) / rect.width) * 100,
+                          startMouseY: ((e.clientY - rect.top) / rect.height) * 100,
+                          startP1: p,
+                          startP2: nextP
+                        });
+                      }}
+                    />
+                    <line
+                      x1={`${p.x}%`} y1={`${p.y}%`}
+                      x2={`${nextP.x}%`} y2={`${nextP.y}%`}
+                      stroke="#a855f7" strokeWidth={3 / transform.scale}
+                      style={{ pointerEvents: 'none', filter: 'drop-shadow(0 0 4px rgba(168,85,247,0.8))' }}
+                    />
+                    <text
+                      x={`${midX}%`}
+                      y={`${midY}%`}
+                      textAnchor="middle"
+                      dominantBaseline="auto"
+                      fill="#f3e8ff"
+                      style={{
+                        fontSize: `${13 / transform.scale}px`,
+                        fontFamily: 'monospace',
+                        fontWeight: '900',
+                        pointerEvents: 'none',
+                        filter: 'drop-shadow(1px 2px 3px rgba(0,0,0,1))'
+                      }}
+                      transform={`rotate(${textAngle}, ${midX * 10.2}, ${midY * 10.2}) translate(0, ${-6 / transform.scale})`}
+                    >
+                      {dist}px ∠{angleFormatted}°
+                    </text>
+                  </g>
+                );
+              })}
+
+              {/* Vértices arrastáveis */}
+              {measurePoints.length === 4 && measurePoints.map((p, i) => (
+                <circle
+                  key={`anchor-${i}`}
+                  cx={`${p.x}%`} cy={`${p.y}%`} r={7 / transform.scale}
+                  fill="#f3e8ff" stroke="#9333ea" strokeWidth={3 / transform.scale}
+                  className="cursor-move drop-shadow-md"
+                  style={{ pointerEvents: 'auto' }}
+                  onMouseOver={(e) => e.currentTarget.setAttribute('fill', '#fde047')}
+                  onMouseOut={(e) => e.currentTarget.setAttribute('fill', '#f3e8ff')}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (!mapRef.current) return;
+                    const rect = mapRef.current.getBoundingClientRect();
+                    setDragContext({
+                      type: 'point', index: i,
+                      startMouseX: ((e.clientX - rect.left) / rect.width) * 100,
+                      startMouseY: ((e.clientY - rect.top) / rect.height) * 100,
+                      startP1: p
+                    });
+                  }}
+                />
+              ))}
+            </svg>
+          )}
+
           {/* PREVIEW FIXADO + TOOLTIP */}
           {placementMode && previewPlacement && (
             <div
@@ -353,7 +543,7 @@ function App() {
               style={{ top: `${previewPlacement.y}%`, left: `${previewPlacement.x}%`, transform: 'translate(-50%, -50%)' }}
             >
               <img
-                src={`/assets/STAGE 1/buildings/${placementMode.id}.png`}
+                src={`/assets/STAGE 1/buildings/${placementMode.id}.svg`}
                 alt="preview_fixed"
                 className="pointer-events-none opacity-95 drop-shadow-[0_0_18px_rgba(34,197,94,1)]"
                 style={{ width: `calc(1020px * ${previewScale / 100})` }}
@@ -481,6 +671,21 @@ function App() {
         <button className="w-12 h-12 sm:w-14 sm:h-14 bg-slate-900/60 backdrop-blur-md rounded-xl flex items-center justify-center hover:bg-slate-800 transition-colors border border-white/15 shadow-lg group" title="Configurações">
           <img src="/assets/icons/settings.svg" alt="settings" className="w-6 h-6 opacity-75 group-hover:scale-110 transition-transform" />
         </button>
+        <button
+          onClick={() => {
+            setIsMeasuringMode(prev => {
+              if (prev) {
+                setMeasurePoints([]);
+                setDrawingRect(null);
+                setDragContext(null);
+              }
+              return !prev;
+            });
+          }}
+          className={`w-12 h-12 sm:w-14 sm:h-14 backdrop-blur-md rounded-xl flex items-center justify-center transition-colors border shadow-lg group ${isMeasuringMode ? 'bg-purple-800 border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.5)]' : 'bg-slate-900/60 hover:bg-slate-800 border-white/15'}`}
+          title="Medidor Geométrico Isométrico">
+          <span className="text-xl group-hover:scale-110 transition-transform opacity-95 text-white bg-transparent pt-0.5">📐</span>
+        </button>
       </aside>
 
       {/* GUIA DO PLACEMENT MODE */}
@@ -502,6 +707,30 @@ function App() {
             ${gameState.toast.type === 'info' ? 'bg-slate-900/90 text-white border-slate-700' : ''}
           `}>
             {gameState.toast.message}
+          </div>
+        </div>
+      )}
+
+      {/* INSTRUÇÕES DO MEDIDOR TELA INTEIRA */}
+      {isMeasuringMode && measurePoints.length === 0 && !drawingRect && (
+        <div className="fixed inset-0 z-[200] pointer-events-none flex items-center justify-center">
+          <div className="bg-purple-900/90 backdrop-blur-md text-purple-100 text-[11px] uppercase tracking-wide font-black p-5 flex flex-col items-center rounded-2xl border border-purple-500/50 shadow-[0_10px_40px_rgba(88,28,135,0.8)] text-center leading-relaxed">
+            <span className="text-white text-sm mb-3 px-4 py-1.5 rounded-full bg-purple-700/60 shadow-inner">📐 O Mapeador Isométrico</span>
+            <span className="opacity-95 text-xs text-purple-200">1. Clique e arraste para desenhar no mapa.</span>
+            <span className="opacity-95 text-xs text-purple-200">2. Mova os cantos livremente depois de criar o layout.</span>
+            <span className="text-yellow-300 mt-3 uppercase font-bold text-xs tracking-[0.2em] bg-black/30 px-3 py-1 rounded text-opacity-90">Tecla [ESC] fecha ou reseta</span>
+          </div>
+        </div>
+      )}
+
+      {/* INSTRUÇÕES DO MEDIDOR TELA INTEIRA */}
+      {isMeasuringMode && measurePoints.length === 0 && !drawingRect && (
+        <div className="fixed inset-0 z-[200] pointer-events-none flex items-center justify-center">
+          <div className="bg-purple-900/90 backdrop-blur-md text-purple-100 text-[11px] uppercase tracking-wide font-black p-5 flex flex-col items-center rounded-2xl border border-purple-500/50 shadow-[0_10px_40px_rgba(88,28,135,0.8)] text-center leading-relaxed">
+            <span className="text-white text-sm mb-3 px-4 py-1.5 rounded-full bg-purple-700/60 shadow-inner">📐 O Mapeador Isométrico</span>
+            <span className="opacity-95 text-xs text-purple-200">1. Clique e arraste para desenhar no mapa.</span>
+            <span className="opacity-95 text-xs text-purple-200">2. Mova os cantos livremente depois de criar o layout.</span>
+            <span className="text-yellow-300 mt-3 uppercase font-bold text-xs tracking-[0.2em] bg-black/30 px-3 py-1 rounded text-opacity-90">Tecla [ESC] fecha ou reseta</span>
           </div>
         </div>
       )}
