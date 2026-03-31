@@ -34,17 +34,17 @@ const BUILDINGS = [
   // OTHERS
   { id: 'esterco', name: 'Esterco', category: 'Others', level: 1, cost: 8000 },
   // DECORATIONS
-  { id: 'arvore1', name: 'Árvore 1', category: 'Decorations', level: 1, cost: 50 },
-  { id: 'arvore2', name: 'Árvore 2', category: 'Decorations', level: 1, cost: 50 },
-  { id: 'arvore3', name: 'Árvore 3', category: 'Decorations', level: 1, cost: 50 },
+  { id: 'tree', name: 'Árvore 1', category: 'Decorations', level: 1, cost: 50 },
+  { id: 'tree2', name: 'Árvore 2', category: 'Decorations', level: 1, cost: 50 },
+  { id: 'tree3', name: 'Árvore 3', category: 'Decorations', level: 1, cost: 50 },
 ];
 
 const TABS = ['All', 'Social', 'Animals', 'Production', 'Crops', 'Storage', 'Machines', 'Decorations', 'Others'];
 
 const fmt = (v) => new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(v);
 
-// Preview thumbnail do building — tenta carregar do STAGE 1, mostra placeholder se falhar
-function BuildingThumb({ id }) {
+// Preview thumbnail do building — tenta carregar do STAGE 1 ou decor, mostra placeholder se falhar
+function BuildingThumb({ id, category }) {
   const [err, setErr] = useState(false);
   if (err) {
     return (
@@ -53,9 +53,14 @@ function BuildingThumb({ id }) {
       </div>
     );
   }
+
+  const src = category === 'Decorations'
+    ? `/assets/decor/${id}.svg`
+    : `/assets/STAGE 1/buildings/${id}.svg`;
+
   return (
     <img
-      src={`/assets/STAGE 1/buildings/${id}.svg`}
+      src={src}
       alt={id}
       className="w-14 h-14 object-contain rounded-lg bg-slate-50"
       onError={() => setErr(true)}
@@ -139,7 +144,7 @@ export function BuildingsModal({ isOpen, onClose, onBuild, money = 0 }) {
                     }`}
                 >
                   {/* Thumbnail */}
-                  <BuildingThumb id={b.id} />
+                  <BuildingThumb id={b.id} category={b.category} />
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">

@@ -265,11 +265,24 @@ function App() {
       return;
     }
 
+    // Posicionamento do cursor em pixels para o mapeador
+    if (isMeasuringMode && mapRef.current) {
+      const rect = mapRef.current.getBoundingClientRect();
+      setMousePos({
+        x: ((e.clientX - rect.left) / rect.width) * 100,
+        y: ((e.clientY - rect.top) / rect.height) * 100,
+        screenX: e.clientX,
+        screenY: e.clientY
+      });
+    }
+
     if (placementMode && !previewPlacement && mapRef.current) {
       const rect = mapRef.current.getBoundingClientRect();
       setMousePos({
         x: ((e.clientX - rect.left) / rect.width) * 100,
         y: ((e.clientY - rect.top) / rect.height) * 100,
+        screenX: e.clientX,
+        screenY: e.clientY
       });
     }
     if (!isPanning) return;
@@ -394,20 +407,23 @@ function App() {
           <WorldDecor />
 
           {/* CONSTRUÇÕES CONFIRMADAS */}
-          {gameState.buildings.map((b, idx) => (
-            <img
-              key={idx}
-              src={`/assets/STAGE 1/buildings/${b.id}.svg`}
-              alt={b.id}
-              className="absolute pointer-events-none drop-shadow-xl"
-              style={{ top: `${b.y}%`, left: `${b.x}%`, transform: 'translate(-50%, -50%)', width: `${b.scale || 8}%`, zIndex: b.zIndex || 10 }}
-            />
-          ))}
+          {gameState.buildings.map((b, idx) => {
+            const isDecor = b.id.startsWith('tree');
+            return (
+              <img
+                key={idx}
+                src={isDecor ? `/assets/decor/${b.id}.svg` : `/assets/STAGE 1/buildings/${b.id}.svg`}
+                alt={b.id}
+                className="absolute pointer-events-none drop-shadow-xl"
+                style={{ top: `${b.y}%`, left: `${b.x}%`, transform: 'translate(-50%, -50%)', width: `${b.scale || 8}%`, zIndex: b.zIndex || 10 }}
+              />
+            );
+          })}
 
           {/* PREVIEW DO HOVER */}
           {placementMode && !previewPlacement && (
             <img
-              src={`/assets/STAGE 1/buildings/${placementMode.id}.svg`}
+              src={placementMode.id.startsWith('tree') ? `/assets/decor/${placementMode.id}.svg` : `/assets/STAGE 1/buildings/${placementMode.id}.svg`}
               alt="preview_hover"
               className="absolute pointer-events-none opacity-60 z-20"
               style={{
@@ -543,7 +559,7 @@ function App() {
               style={{ top: `${previewPlacement.y}%`, left: `${previewPlacement.x}%`, transform: 'translate(-50%, -50%)' }}
             >
               <img
-                src={`/assets/STAGE 1/buildings/${placementMode.id}.svg`}
+                src={placementMode.id.startsWith('tree') ? `/assets/decor/${placementMode.id}.svg` : `/assets/STAGE 1/buildings/${placementMode.id}.svg`}
                 alt="preview_fixed"
                 className="pointer-events-none opacity-95 drop-shadow-[0_0_18px_rgba(34,197,94,1)]"
                 style={{ width: `calc(1020px * ${previewScale / 100})` }}
@@ -711,26 +727,33 @@ function App() {
         </div>
       )}
 
-      {/* INSTRUÇÕES DO MEDIDOR TELA INTEIRA */}
-      {isMeasuringMode && measurePoints.length === 0 && !drawingRect && (
-        <div className="fixed inset-0 z-[200] pointer-events-none flex items-center justify-center">
-          <div className="bg-purple-900/90 backdrop-blur-md text-purple-100 text-[11px] uppercase tracking-wide font-black p-5 flex flex-col items-center rounded-2xl border border-purple-500/50 shadow-[0_10px_40px_rgba(88,28,135,0.8)] text-center leading-relaxed">
-            <span className="text-white text-sm mb-3 px-4 py-1.5 rounded-full bg-purple-700/60 shadow-inner">📐 O Mapeador Isométrico</span>
-            <span className="opacity-95 text-xs text-purple-200">1. Clique e arraste para desenhar no mapa.</span>
-            <span className="opacity-95 text-xs text-purple-200">2. Mova os cantos livremente depois de criar o layout.</span>
-            <span className="text-yellow-300 mt-3 uppercase font-bold text-xs tracking-[0.2em] bg-black/30 px-3 py-1 rounded text-opacity-90">Tecla [ESC] fecha ou reseta</span>
+      {/* CURSOR TRACKER (Mapeamento de pixels) */}
+      {isMeasuringMode && (
+        <div
+          className="fixed z-[250] pointer-events-none bg-black/80 backdrop-blur-sm border border-purple-500/50 px-2 py-1 rounded-md shadow-lg"
+          style={{
+            left: `${mousePos.screenX + 15}px`,
+            top: `${mousePos.screenY + 15}px`,
+            display: (mousePos.screenX === undefined) ? 'none' : 'block'
+          }}
+        >
+          <div className="text-[10px] font-mono text-purple-200 flex flex-col items-center">
+            <span>X: {(mousePos.x * 10.2).toFixed(0)}px</span>
+            <span>Y: {(mousePos.y * 10.2).toFixed(0)}px</span>
           </div>
         </div>
       )}
 
-      {/* INSTRUÇÕES DO MEDIDOR TELA INTEIRA */}
+      {/* INSTRUÇÕES DO MEDIDOR TELA INTEIRA - Reposicionado ao bottom e reduzido */}
       {isMeasuringMode && measurePoints.length === 0 && !drawingRect && (
-        <div className="fixed inset-0 z-[200] pointer-events-none flex items-center justify-center">
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[200] pointer-events-none scale-75 md:scale-90 opacity-90">
           <div className="bg-purple-900/90 backdrop-blur-md text-purple-100 text-[11px] uppercase tracking-wide font-black p-5 flex flex-col items-center rounded-2xl border border-purple-500/50 shadow-[0_10px_40px_rgba(88,28,135,0.8)] text-center leading-relaxed">
             <span className="text-white text-sm mb-3 px-4 py-1.5 rounded-full bg-purple-700/60 shadow-inner">📐 O Mapeador Isométrico</span>
-            <span className="opacity-95 text-xs text-purple-200">1. Clique e arraste para desenhar no mapa.</span>
-            <span className="opacity-95 text-xs text-purple-200">2. Mova os cantos livremente depois de criar o layout.</span>
-            <span className="text-yellow-300 mt-3 uppercase font-bold text-xs tracking-[0.2em] bg-black/30 px-3 py-1 rounded text-opacity-90">Tecla [ESC] fecha ou reseta</span>
+            <div className="flex flex-col items-start gap-1">
+              <span className="opacity-95 text-xs text-purple-200">• Clique e arraste para desenhar o perímetro.</span>
+              <span className="opacity-95 text-xs text-purple-200">• Mova cantos ou linhas para editar.</span>
+            </div>
+            <span className="text-yellow-300 mt-3 uppercase font-bold text-xs tracking-[0.2em] bg-black/30 px-3 py-1 rounded text-opacity-90">Tecla [ESC] fecha</span>
           </div>
         </div>
       )}
