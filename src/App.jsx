@@ -64,6 +64,9 @@ function App() {
     temperature: 18,
     // Terreno
     ownedSectors: ['center'],
+    // Demolição
+    isDemolitionMode: false,
+    removedNativeTreeIds: [],
     // Toast
     toast: null,
   });
@@ -197,6 +200,8 @@ function App() {
   // =============================================
   // PAN E ZOOM
   // =============================================
+  const [isPlacementMenuOpen, setIsPlacementMenuOpen] = useState(false);
+  const [windowMousePos, setWindowMousePos] = useState({ x: 0, y: 0 });
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
@@ -352,8 +357,49 @@ function App() {
   // =============================================
   const currentSeason = SEASONS[gameState.seasonIndex];
 
+  // Monitorar posição do mouse global para o Custom Cursor
+  useEffect(() => {
+    const handleGlobalMouseMove = (e) => {
+      setWindowMousePos({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener('mousemove', handleGlobalMouseMove);
+    return () => window.removeEventListener('mousemove', handleGlobalMouseMove);
+  }, []);
+
+  // Tecla ESC para desligar o modo de demolição v2.8.8
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setGameState(prev => ({ ...prev, isDemolitionMode: false }));
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
-    <div className="h-screen w-screen relative overflow-hidden flex flex-col font-sans select-none bg-[#99cc33]">
+    <div className={`h-screen w-screen relative overflow-hidden flex flex-col font-sans select-none bg-[#99cc33] ${gameState.isDemolitionMode ? 'cursor-none' : ''}`}>
+
+      {/* CURSOR CUSTOMIZADO (DEMOLIÇÃO) v2.8.7 */}
+      {gameState.isDemolitionMode && (
+        <div 
+          className="fixed pointer-events-none z-[9999] select-none"
+          style={{ 
+            left: windowMousePos.x, 
+            top: windowMousePos.y, 
+            transform: 'translate(-50%, -50%)',
+            width: '45px',
+            height: '45px'
+          }}
+        >
+          <img 
+            src="/assets/icons/demolish.svg" 
+            alt="demolition-cursor" 
+            className="w-full h-full filter drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]"
+            style={{ animation: 'demolish-shake 0.3s infinite ease-in-out' }}
+          />
+        </div>
+      )}
 
       {/* VINHETA — sempre presente nas bordas */}
       <div className="vignette absolute inset-0 z-[100] pointer-events-none" />
@@ -378,7 +424,8 @@ function App() {
       <main
         ref={containerRef}
         className={`flex-1 relative overflow-hidden pointer-events-auto bg-transparent
-          ${isPanning ? 'cursor-grabbing' : placementMode ? 'cursor-crosshair' : 'cursor-grab'}`}
+          ${isPanning ? 'cursor-grabbing' : placementMode ? 'cursor-crosshair' : gameState.isDemolitionMode ? 'cursor-none' : ''}`}
+        style={gameState.isDemolitionMode ? {} : (isPanning || placementMode) ? {} : { cursor: 'grab' }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -404,7 +451,18 @@ function App() {
           <WorldRoad />
 
           {/* DECORAÇÕES DO MUNDO (abaixo das construções) */}
-          <WorldDecor />
+          <WorldDecor
+            isDemolitionMode={gameState.isDemolitionMode}
+            removedIds={gameState.removedNativeTreeIds}
+            onDemolish={(id) => {
+              setGameState(prev => ({
+                ...prev,
+                removedNativeTreeIds: [...prev.removedNativeTreeIds, id],
+                toast: { message: '🌳 Árvore nativa removida!', type: 'info' }
+              }));
+              setTimeout(() => setGameState(p => ({ ...p, toast: null })), 2000);
+            }}
+          />
 
           {/* CONSTRUÇÕES CONFIRMADAS */}
           {gameState.buildings.map((b, idx) => {
@@ -414,7 +472,20 @@ function App() {
                 key={idx}
                 src={isDecor ? `/assets/decor/${b.id}.svg` : `/assets/STAGE 1/buildings/${b.id}.svg`}
                 alt={b.id}
-                className="absolute pointer-events-none drop-shadow-xl"
+                onClick={gameState.isDemolitionMode ? (e) => {
+                  e.stopPropagation();
+                  setGameState(prev => {
+                    const newBuildings = [...prev.buildings];
+                    newBuildings.splice(idx, 1);
+                    return {
+                      ...prev,
+                      buildings: newBuildings,
+                      toast: { message: `🏗 Estrutura "${b.id}" demolida!`, type: 'info' }
+                    };
+                  });
+                  setTimeout(() => setGameState(p => ({ ...p, toast: null })), 2000);
+                } : undefined}
+                className={`absolute drop-shadow-xl transition-all ${gameState.isDemolitionMode ? 'hover-demolish pointer-events-auto' : 'pointer-events-none'}`}
                 style={{ top: `${b.y}%`, left: `${b.x}%`, transform: 'translate(-50%, -50%)', width: `${b.scale || 8}%`, zIndex: b.zIndex || 10 }}
               />
             );
@@ -437,7 +508,7 @@ function App() {
 
           {/* MEDIDOR ISOMÉTRICO AVANÇADO */}
           {isMeasuringMode && (
-            <svg width="100%" height="100%" className="absolute inset-0 z-[160] overflow-visible pointer-events-none">
+            <svg width="100%" height="100%" className="absolute inset-0 z-[1000] overflow-visible pointer-events-none">
               {/* Retângulo sendo desenhado */}
               {drawingRect && (
                 <rect
@@ -656,8 +727,13 @@ function App() {
           <span className="text-xl group-hover:scale-125 transition-transform">🗺</span>
         </button>
 
-        <button className="w-12 h-12 sm:w-14 sm:h-14 bg-slate-900/60 backdrop-blur-md rounded-xl flex items-center justify-center hover:bg-slate-800 transition-colors border border-white/15 shadow-lg group" title="Máquinas">
-          <img src="/assets/icons/tractor.svg" alt="tractor" className="w-6 h-6 opacity-75 group-hover:scale-110 transition-transform" />
+        <button
+          onClick={() => setGameState(prev => ({ ...prev, isDemolitionMode: !prev.isDemolitionMode }))}
+          className={`w-12 h-12 sm:w-14 sm:h-14 backdrop-blur-md rounded-xl flex items-center justify-center transition-all border shadow-lg group ${gameState.isDemolitionMode ? 'bg-red-800 border-red-400 shadow-[0_0_20px_rgba(220,38,38,0.6)]' : 'bg-slate-900/60 hover:bg-slate-800 border-white/15'}`}
+          title="Demolição (Remover árvores e estruturas)"
+        >
+          <img src="/assets/icons/demolish.svg" alt="demolition" className="w-6 h-6 sm:w-8 sm:h-8 opacity-90 group-hover:scale-110 transition-transform group-hover:brightness-125 filter drop-shadow-md object-contain" />
+          {gameState.isDemolitionMode && <span className="absolute -top-1 -right-1 bg-red-500 text-[9px] font-black px-2 py-0.5 rounded-full animate-pulse text-white border border-red-300">ON</span>}
         </button>
 
         <button className="w-12 h-12 sm:w-14 sm:h-14 bg-slate-900/60 backdrop-blur-md rounded-xl flex items-center justify-center hover:bg-slate-800 transition-colors border border-white/15 shadow-lg group" title="Relatórios">

@@ -1,31 +1,43 @@
-# Multi-Agent Orchestration Plan: Dynamic Rotational Tooltips (Attached to Lines)
+# Multi-Agent Orchestration Plan: v2.8.0 - Demolition & Refinement
 
 ## 1. Task Objective
-- **Dynamic Measurement Tooltips:** Refatorar as caixas de informação de distância/graus para que fiquem perfeitamente fixadas no meio (coladas) e orientadas paralelamente à inclinação da linha correspondente, não importando a direção que o vértice seja puxado.
+Implement version 2.8.0 focusing on map maintenance and UI precision.
+- **Strict Tree Height**: Enforce a 75px maximum height for native trees.
+- **Topmost Measurement**: Ensure the measurement tool is never hidden by game objects.
+- **Demolition System**: Introduce a tool to remove buildings and native trees.
 
-## 2. Requirements & Discovery
-- Atualmente, as caixas de informação estão fixas espacialmente (ângulo 0°) com as informações usando um `foreignObject` posicionado sempre na vertical.
-- **Solução Matemática (Trigonometria):**
-  - Aplicar `transform="translate(...) rotate(...)"` no nó pai do tooltip, ou repassar a rotação exata para o `style={{ transform: ... }}` no HTML.
-  - **Correção de Legibilidade:** Se a linha for desenhada "da direita para a esquerda" (ângulo maior que 90° e menor que 270°), a inclinação virará a caixa de cabeça para baixo. Para evitar isso, se `angle > 90 && angle < 270`, subtrai-se 180° da rotação final apenas para o texto, assim a leitura fica sempre orientada para cima.
-  - O espaçamento de 1 a 2px (desejo do usuário) pode ser garantido aplicando um deslocamento em `translateY` na caixa rotacionada ou manipulando `dy` caso se utilize um elemento `<text>` do SVG.
+## 2. Discovery & Technical Strategy
+- **Trees**: `WorldDecor.jsx` uses `width` for sizing. Since nature isn't square, tall SVGs are exceeding 75px height. 
+  - *Fix*: Set `height` style to the random size and cap with `max-height: 75px`.
+- **Z-Index**: Measurement tool is currently at `z-[160]`. High-positioned buildings or future UI might clash.
+  - *Fix*: Move to `z-[1000]`.
+- **Demolition**:
+  - *State*: `isDemolitionMode: boolean` + `removedNativeIds: string[]`.
+  - *UI*: Button in `App.jsx` (left sidebar). Icon: `tractor.svg` or a custom "conveyor with loader" emoji/icon.
+  - *Interaction*: When active, cursor changes to `crosshair` or `url('/assets/icons/remove.cur')`. Clicking an object triggers removal.
 
-## 3. Implementation Steps (Phase 2 - Parallel Agents)
+## 3. Implementation Steps (Phase 2)
 
-### A. Frontend Specialist (UI & Logic)
-1. **Tooltips Rotacionais no `App.jsx`:**
-   - Modificar o `<foreignObject>` existente para suportar a rotação atrelada ao ângulo calculado `Math.atan2`.
-   - Calcular um `displayAngle`. Se `angle > 90 && angle < 270`, `displayAngle = angle - 180`; caso contrário, `displayAngle = angle`.
-   - Alterar o `transform` para incluir a rotação: `translate(-50%, -100%) rotate(${displayAngle}deg)`. (Afastando e centralizando para grudar acima da linha).
-   - Diminuir o volume da caixa e remover fundos excessivos para garantir estética sem que obstrua a linha geométrica subjacente.
+### A. Frontend Specialist (UI & Flow)
+1. **App.jsx**:
+   - Add `isDemolitionMode` state.
+   - Implement `handleDemolish(type, id)` function.
+   - Add the Demolition Button to the sidebar.
+   - Update measurement tool `z-index` to `1000`.
+2. **WorldDecor.jsx**:
+   - Change `width: px` to `height: px` + `max-height: 75px` + `width: auto`.
+   - Accept `removedIds` prop and filter `DECOR_ITEMS`.
+   - Enable `pointer-events: auto` only when `isDemolitionMode` is true.
 
-### B. Project Planner / Orchestrator
-- Garantir que a lógica de "escalonamento reverso" (`3 / transform.scale`) implantada para o SVG ainda funcione adequadamente quando rotacionarmos as divisórias do React via CSS Transform.
+### B. Project Planner / Technical Lead
+- Ensure that removing native trees doesn't cause a re-render performance hit for the procedural generation (keep using `useMemo`).
+- Verify building removal logic doesn't break indices.
 
 ### C. Test Engineer
-- Testar desenhar "da direita para a esquerda" certificando-se de que o texto não fica de cabeça para baixo.
-- Verificar o espaçamento perpendicular garantindo aderência na linha (+/- 2px de gap real).
+- Verify height of `tree2.svg` and `tree3.svg` stays within 75px bounds.
+- Test demolition of native trees in dense clusters.
+- Confirm measurement lines stay visible over the tallest buildings.
 
 ---
 ## Approval
-Aguardando aprovação do usuário para iniciar a IMPLEMENTAÇÃO em paralelo.
+**Awaiting user response to Socratic questions and approval (Y/N).**

@@ -52,13 +52,16 @@ const SRC = {
   tree3: '/assets/decor/tree3.svg',
 };
 
-export function WorldDecor() {
+export function WorldDecor({ isDemolitionMode, removedIds = [], onDemolish }) {
   // Memoizamos p/ não regenerar a floresta a cada re-render do App
   const DECOR_ITEMS = useMemo(() => generateNativeFlora(), []);
 
+  // Filtra as que já foram demolidas
+  const activeItems = DECOR_ITEMS.filter(item => !removedIds.includes(item.id));
+
   return (
     <>
-      {DECOR_ITEMS.map(item => {
+      {activeItems.map(item => {
         const src = SRC[item.type];
         if (!src) return null;
         return (
@@ -67,12 +70,17 @@ export function WorldDecor() {
             src={src}
             alt={item.type}
             draggable={false}
-            className="absolute pointer-events-none select-none"
+            onClick={isDemolitionMode ? (e) => {
+              e.stopPropagation();
+              onDemolish(item.id);
+            } : undefined}
+            className={`absolute select-none transition-all ${isDemolitionMode ? 'hover-demolish-tree pointer-events-auto' : 'pointer-events-none'}`}
             style={{
               top: `${item.top}%`,
               left: `${item.left}%`,
-              width: `${item.size}px`,
-              height: 'auto',
+              height: `${item.size}px`,
+              maxHeight: '75px',
+              width: 'auto',
               // Z-INDEX ISOMÉTRICO DINÂMICO
               zIndex: item.zIndex,
               transform: 'translateX(-50%)',
