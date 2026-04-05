@@ -114,24 +114,73 @@ input[type="range"]::-moz-range-thumb {
   100% { transform: translate(-50%, -50%) rotate(0deg); filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.8)) brightness(1.2); }
 }
 
-/* Variante para árvores (apenas rotação e filtro pois elas usam translateX(-50%)) */
 @keyframes demolish-shake-tree {
   0%   { transform: translateX(-50%) rotate(0deg); filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.7)) brightness(1.2); }
-  25%  { transform: translateX(-50%) rotate(3deg); }
-  50%  { transform: translateX(-50%) rotate(-2deg); filter: drop-shadow(0 0 18px rgba(220, 38, 38, 0.9)) brightness(1.4); }
-  75%  { transform: translateX(-50%) rotate(1.5deg); }
+  25%  { transform: translateX(-50%) rotate(1deg); }
+  50%  { transform: translateX(-50%) rotate(-0.7deg); filter: drop-shadow(0 0 18px rgba(220, 38, 38, 0.9)) brightness(1.4); }
+  75%  { transform: translateX(-50%) rotate(0.5deg); }
   100% { transform: translateX(-50%) rotate(0deg); filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.7)) brightness(1.2); }
 }
 
-.hover-demolish:hover {
-  animation: demolish-shake 0.25s infinite ease-in-out;
+.hover-demolish-tree:hover {
+  animation: demolish-shake-tree 0.7s infinite ease-in-out;
   cursor: inherit !important;
-  z-index: 100 !important; /* Traz p/ frente no hover para ver a animação completa */
+  z-index: 10000 !important;
 }
 
-/* Aplicação especial p/ as árvores nativas que possuem transform próprio */
-.hover-demolish-tree:hover {
-  animation: demolish-shake-tree 0.25s infinite ease-in-out;
+.hover-demolish:hover {
+  animation: demolish-shake 0.7s infinite ease-in-out;
   cursor: inherit !important;
-  z-index: 500 !important;
+  z-index: 100 !important;
+}
+
+/* Variante para construções (não usam translateX(-50%), têm translate inline no style) */
+@keyframes demolish-shake-building {
+  0%   { filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.9)) brightness(1.2); rotate: 0deg; }
+  25%  { rotate: 1deg; }
+  50%  { filter: drop-shadow(0 0 24px rgba(220, 38, 38, 1)) brightness(1.6); rotate: -0.7deg; }
+  75%  { rotate: 0.5deg; }
+  100% { filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.9)) brightness(1.2); rotate: 0deg; }
+}
+
+.hover-demolish-building:hover {
+  animation: demolish-shake-building 0.7s infinite ease-in-out;
+  cursor: inherit !important;
+  z-index: 10001 !important;
+}
+
+/* =============================================
+   ANIMAÇÃO DE EDIÇÃO (PULSE GLOW)
+   ============================================= */
+@keyframes edit-pulse {
+  0%   { filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.6)) brightness(1); }
+  50%  { filter: drop-shadow(0 0 20px rgba(14, 165, 233, 0.9)) brightness(1.15); }
+  100% { filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.6)) brightness(1); }
+}
+
+.selected-building {
+  animation: edit-pulse 1.5s infinite ease-in-out;
+  z-index: 10000 !important;
+  cursor: grab;
+}
+
+.selected-building:active {
+  cursor: grabbing;
+}
+/* =============================================
+   LIMITES DE TERRENO
+   ============================================= */
+.terrain-owned {
+  position: absolute;
+  border: 2px dashed rgba(134, 239, 172, 0.5);
+  border-radius: 4px;
+  pointer-events: none;
+  box-shadow: inset 0 0 30px rgba(134, 239, 172, 0.04);
+}
+
+.terrain-unowned {
+  position: absolute;
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  pointer-events: none;
 }

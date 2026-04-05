@@ -20,6 +20,46 @@ const SEASON_TEMP_RANGE = {
 const DAYS_PER_SEASON = 91; // ~3 meses por estação
 const MS_PER_GAME_DAY = 3000; // 3 segundos reais = 1 dia no jogo
 
+// =============================================
+// CONFIGURAÇÕES DE CONSTRUÇÕES v2.10.0
+// =============================================
+const BUILDING_CONFIG = {
+  // SOCIAL
+  sede: { scale: 8, ext: 'svg' },
+  // ANIMALS
+  curral: { scale: 10, ext: 'png' },
+  aprisco: { scale: 8, ext: 'png' },
+  pocilga: { scale: 8, ext: 'png' },
+  estabulo: { scale: 12, ext: 'png' },
+  galinhas: { scale: 8, ext: 'png' },
+  patos: { scale: 8, ext: 'png' },
+  codornas: { scale: 6, ext: 'png' },
+  avestrus: { scale: 10, ext: 'png' },
+  viveirosParaPeixes: { scale: 12, ext: 'png' },
+  // PRODUCTION
+  pomar: { scale: 12, ext: 'png' },
+  horta: { scale: 8, ext: 'png' },
+  estufas: { scale: 15, ext: 'png' },
+  moinho: { scale: 10, ext: 'png' },
+  processamento: { scale: 12, ext: 'png' },
+  // CROPS
+  campo: { scale: 10, ext: 'png' },
+  // STORAGE
+  celeiro: { scale: 12, ext: 'png' },
+  silo: { scale: 4, ext: 'svg' },
+  silagem: { scale: 8, ext: 'png' },
+  estoque: { scale: 10, ext: 'png' },
+  // MACHINES
+  garagem: { scale: 10, ext: 'png' },
+  oficina: { scale: 12, ext: 'png' },
+  logistica: { scale: 10, ext: 'png' },
+  // OTHERS
+  esterco: { scale: 6, ext: 'png' },
+};
+
+// HELPER: Calcula Z-index isométrico com base na posição vertical (Y)
+const calculateIsometricZIndex = (y) => Math.floor(y * 10) + 10;
+
 // Formata moeda BR
 const formatMoney = (val) =>
   new Intl.NumberFormat('pt-BR', { style: 'decimal', minimumFractionDigits: 2 }).format(val);
@@ -27,6 +67,10 @@ const formatMoney = (val) =>
 function App() {
   const [isBuildingsModalOpen, setIsBuildingsModalOpen] = useState(false);
   const [isLandModalOpen, setIsLandModalOpen] = useState(false);
+
+  // ROAD DRAWING STATE
+  const [isRoadMode, setIsRoadMode] = useState(false);
+  const [roadDrawing, setRoadDrawing] = useState(null); // { startX, startY, currentX, currentY, pathTiles: [] }
 
   // MEASURING TOOL STATE
   const [isMeasuringMode, setIsMeasuringMode] = useState(false);
@@ -37,6 +81,8 @@ function App() {
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === 'Escape') {
+        setIsRoadMode(false);
+        setRoadDrawing(null);
         setIsMeasuringMode(false);
         setMeasurePoints([]);
         setDrawingRect(null);
@@ -64,6 +110,8 @@ function App() {
     temperature: 18,
     // Terreno
     ownedSectors: ['center'],
+    // Ruas (Construções Viárias)
+    roads: [],
     // Demolição
     isDemolitionMode: false,
     removedNativeTreeIds: [],
@@ -119,10 +167,11 @@ function App() {
   // MOTOR DE ECONOMIA
   // =============================================
   const handleBuildInitiate = useCallback((buildingId, cost) => {
+    const config = BUILDING_CONFIG[buildingId] || { scale: 8, ext: 'png' };
     setPlacementMode({ id: buildingId, cost });
     setPreviewPlacement(null);
-    setPreviewScale(8);
-    setPreviewZIndex(10); // reset z-index para cada nova construção
+    setPreviewScale(config.scale);
+    setPreviewZIndex(25); // Valor base que será recalculado ao confirmar
   }, [gameState.money]);
 
   const showToast = (message, type = 'info') => {
@@ -133,15 +182,28 @@ function App() {
   // =============================================
   // SISTEMA DE SETORES
   // =============================================
-  const CENTER_SECTOR_BOUNDS = { minX: 20, maxX: 80, minY: 20, maxY: 80 }; // % do mapa
-  const SECTOR_SIZE_PX = 340;
-
-  const isInsideOwnedSector = useCallback((x, y) => {
-    // Por ora, verificação simplificada pelo setor central
-    if (gameState.ownedSectors.includes('center') &&
-      x >= CENTER_SECTOR_BOUNDS.minX && x <= CENTER_SECTOR_BOUNDS.maxX &&
-      y >= CENTER_SECTOR_BOUNDS.minY && y <= CENTER_SECTOR_BOUNDS.maxY) return true;
-    return false;
+  const isInsideOwnedSector = useCallback((x_pct, y_pct) => {
+    // A grade isométrica exata: 1020px base map, lado=800px (tile_rx=720, tile_ry=360)
+    const px = (x_pct / 100) * 1020;
+    const py = (y_pct / 100) * 1020;
+    
+    // Transformação reversa matemática (centro exato visual da engine: 510,510)
+    const dx = px - 510;
+    const dy = py - 510;
+    
+    // Para a grade 5x5, o offset central eleva de 2 para 4
+    const A = dx / 720;
+    const B = dy / 360 + 4;
+    
+    // Convertendo as offsets para a matriz tridimensional cartesiana de vetores
+    const sCol = Math.round((A + B) / 2);
+    const sRow = Math.round((B - A) / 2);
+    
+    // Fora das dimensões da matriz 5x5 do mapa expansivo
+    if (sCol < 0 || sCol > 4 || sRow < 0 || sRow > 4) return false;
+    
+    const sectorId = sCol === 2 && sRow === 2 ? 'center' : `sec_${sCol}_${sRow}`;
+    return sectorId === 'center' || gameState.ownedSectors.includes(sectorId);
   }, [gameState.ownedSectors]);
 
   const handleBuySector = useCallback((sectorId, cost) => {
@@ -167,6 +229,12 @@ function App() {
   const [previewScale, setPreviewScale] = useState(8);
   const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
 
+  // SISTEMA DE EDIÇÃO DE CONSTRUÇÕES v2.9.0
+  const [editingBuildingIndex, setEditingBuildingIndex] = useState(null);
+  const [editState, setEditState] = useState('placed'); // 'moving' | 'placed'
+  const [editBackup, setEditBackup] = useState(null);
+  const longPressTimeoutRef = useRef(null);
+
   const confirmPlacement = useCallback(() => {
     if (!placementMode || !previewPlacement) return;
 
@@ -181,10 +249,19 @@ function App() {
         return { ...prev, toast: { message: '❌ Saldo insuficiente!', type: 'error' } };
       }
       setTimeout(() => setGameState(p => ({ ...p, toast: null })), 3000);
+      const config = BUILDING_CONFIG[placementMode.id] || { scale: 8, ext: 'png' };
+      const finalZIndex = calculateIsometricZIndex(previewPlacement.y);
       return {
         ...prev,
         money: prev.money - cost,
-        buildings: [...prev.buildings, { id: placementMode.id, x: previewPlacement.x, y: previewPlacement.y, scale: previewScale, zIndex: previewZIndex }],
+        buildings: [...prev.buildings, { 
+          id: placementMode.id, 
+          x: previewPlacement.x, 
+          y: previewPlacement.y, 
+          scale: previewScale, 
+          zIndex: finalZIndex,
+          ext: config.ext 
+        }],
         toast: { message: `🏗 Construção "${placementMode.id}" concluída!`, type: 'success' },
       };
     });
@@ -196,6 +273,61 @@ function App() {
     setPlacementMode(null);
     setPreviewPlacement(null);
   }, []);
+
+  // =============================================
+  // FUNÇÕES DE EDIÇÃO v2.9.0
+  // =============================================
+  const handleBuildingMouseDown = useCallback((e, idx) => {
+    // Só permite clique longo se for botão ESQUERDO e não houver outros modos ativos
+    if (e.button !== 0 || gameState.isDemolitionMode || isMeasuringMode || placementMode || editingBuildingIndex !== null) return;
+    
+    // Armazena o índice alvo no ref para garantir que o timeout use o valor correto
+    longPressTimeoutRef.current = setTimeout(() => {
+      setEditingBuildingIndex(idx);
+      setEditBackup({ ...gameState.buildings[idx] });
+      setEditState('moving');
+      // Pulso visual e feedback
+      showToast('🖱️ Mova o mouse e clique para reposicionar!', 'info');
+    }, 2000);
+  }, [gameState.isDemolitionMode, isMeasuringMode, placementMode, editingBuildingIndex, gameState.buildings]);
+
+  const handleBuildingMouseUp = useCallback(() => {
+    if (longPressTimeoutRef.current) {
+      clearTimeout(longPressTimeoutRef.current);
+      longPressTimeoutRef.current = null;
+    }
+  }, []);
+
+  const confirmEdit = useCallback(() => {
+    setEditingBuildingIndex(null);
+    setEditState('placed');
+    setEditBackup(null);
+    showToast('✅ Alterações salvas!', 'success');
+  }, []);
+
+  const cancelEdit = useCallback(() => {
+    if (editingBuildingIndex !== null && editBackup) {
+      setGameState(prev => {
+        const newBuildings = [...prev.buildings];
+        newBuildings[editingBuildingIndex] = editBackup;
+        return { ...prev, buildings: newBuildings };
+      });
+    }
+    setEditingBuildingIndex(null);
+    setEditState('placed');
+    setEditBackup(null);
+    showToast('✕ Edição cancelada', 'info');
+  }, [editingBuildingIndex, editBackup]);
+
+  const toggleFlipX = useCallback(() => {
+    if (editingBuildingIndex === null) return;
+    setGameState(prev => {
+      const newBuildings = [...prev.buildings];
+      const b = newBuildings[editingBuildingIndex];
+      newBuildings[editingBuildingIndex] = { ...b, flipX: !b.flipX };
+      return { ...prev, buildings: newBuildings };
+    });
+  }, [editingBuildingIndex]);
 
   // =============================================
   // PAN E ZOOM
@@ -217,6 +349,20 @@ function App() {
   const handleMouseDown = useCallback((e) => {
     if (placementMode && e.button === 0) return;
 
+    // Início de desenho de Rua
+    if (isRoadMode && mapRef.current && e.button === 0) {
+      const rect = mapRef.current.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      // Impede início de curva/rua fora do próprio território
+      if (!isInsideOwnedSector(x, y)) {
+        showToast('❌ Você só pode construir estradas nos seus terrenos!', 'error');
+        return;
+      }
+      setRoadDrawing({ startX: x, startY: y, currentX: x, currentY: y, pathTiles: [{x, y, zIndex: calculateIsometricZIndex(y)}] });
+      return;
+    }
+
     // Início do desenho da área quadrada
     if (isMeasuringMode && measurePoints.length === 0 && mapRef.current) {
       const rect = mapRef.current.getBoundingClientRect();
@@ -231,6 +377,43 @@ function App() {
   }, [placementMode, transform.x, transform.y, isMeasuringMode, measurePoints.length]);
 
   const handleMouseMove = useCallback((e) => {
+    // RENDERIZADOR ISOMÉTRICO (RUAS) EM TEMPO REAL
+    if (roadDrawing && mapRef.current) {
+      const rect = mapRef.current.getBoundingClientRect();
+      const pctX = ((e.clientX - rect.left) / rect.width) * 100;
+      const pctY = ((e.clientY - rect.top) / rect.height) * 100;
+      
+      const dx = pctX - roadDrawing.startX;
+      const dy = pctY - roadDrawing.startY;
+      
+      // Validação logarítmica/vetorial: força snap perfeito isométrica (y=0.5x ou y=-0.5x)
+      const slope = Math.abs(dx * 1 + dy * 0.5) > Math.abs(dx * 1 + dy * -0.5) ? 0.5 : -0.5;
+      
+      // Distância visual entre os "tiles" de asfalto (pode ser calibrado)
+      const stepX = 5; 
+      const stepY = slope * stepX;
+      
+      const distanceX = Math.abs(dx);
+      const steps = Math.max(1, Math.floor(distanceX / stepX) + 1);
+      const signX = dx >= 0 ? 1 : -1;
+      
+      const newTiles = [];
+      for (let i = 0; i < steps; i++) {
+        const nx = roadDrawing.startX + (signX * stepX * i);
+        const ny = roadDrawing.startY + (signX * stepY * i);
+        // Só gera o asfalto por cima se estiver dentro da casa e terras adquiridas
+        if (isInsideOwnedSector(nx, ny)) {
+          newTiles.push({
+            x: nx,
+            y: ny,
+            zIndex: calculateIsometricZIndex(ny)
+          });
+        }
+      }
+      setRoadDrawing(prev => ({ ...prev, currentX: pctX, currentY: pctY, pathTiles: newTiles }));
+      return;
+    }
+
     if (drawingRect && mapRef.current) {
       const rect = mapRef.current.getBoundingClientRect();
       const x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -281,7 +464,8 @@ function App() {
       });
     }
 
-    if (placementMode && !previewPlacement && mapRef.current) {
+    // Atualiza mousePos também quando no modo de mover (fantasma)
+    if ((placementMode && !previewPlacement || editState === 'moving' || isRoadMode) && mapRef.current) {
       const rect = mapRef.current.getBoundingClientRect();
       setMousePos({
         x: ((e.clientX - rect.left) / rect.width) * 100,
@@ -292,9 +476,19 @@ function App() {
     }
     if (!isPanning) return;
     setTransform(prev => ({ ...prev, x: e.clientX - startPanRef.current.x, y: e.clientY - startPanRef.current.y }));
-  }, [placementMode, previewPlacement, isPanning, drawingRect, dragContext]);
+  }, [placementMode, previewPlacement, isPanning, drawingRect, dragContext, editState, isRoadMode, roadDrawing, isInsideOwnedSector]);
 
   const handleMouseUp = useCallback(() => {
+    if (roadDrawing) {
+      if (roadDrawing.pathTiles.length > 0) {
+        setGameState(prev => ({
+          ...prev,
+          roads: [...prev.roads, ...roadDrawing.pathTiles] // Transplanta pro array final estático
+        }));
+      }
+      setRoadDrawing(null);
+    }
+
     if (drawingRect) {
       const p1 = { x: drawingRect.startX, y: drawingRect.startY };
       const p2 = { x: drawingRect.currentX, y: drawingRect.startY };
@@ -312,7 +506,7 @@ function App() {
     }
 
     setIsPanning(false);
-  }, [drawingRect, dragContext]);
+  }, [drawingRect, dragContext, roadDrawing]);
 
   // Touch support para mobile
   const touchRef = useRef(null);
@@ -339,12 +533,42 @@ function App() {
   const handleMapClick = useCallback((e) => {
     if (placementMode && !previewPlacement && mapRef.current) {
       const rect = mapRef.current.getBoundingClientRect();
-      setPreviewPlacement({
-        x: ((e.clientX - rect.left) / rect.width) * 100,
-        y: ((e.clientY - rect.top) / rect.height) * 100,
-      });
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      
+      if (!isInsideOwnedSector(x, y)) {
+        showToast('❌ Você precisa comprar este terreno primeiro!', 'error');
+        return;
+      }
+      
+      setPreviewPlacement({ x, y });
     }
-  }, [placementMode, previewPlacement]);
+
+    // Se estiver editando e clicar no mapa para reposicionar
+    if (editingBuildingIndex !== null && editState === 'moving' && mapRef.current) {
+      const rect = mapRef.current.getBoundingClientRect();
+      const newX = ((e.clientX - rect.left) / rect.width) * 100;
+      const newY = ((e.clientY - rect.top) / rect.height) * 100;
+      
+      if (!isInsideOwnedSector(newX, newY)) {
+        showToast('❌ Você precisa comprar este terreno primeiro!', 'error');
+        return;
+      }
+      
+      setGameState(prev => {
+        const newBuildings = [...prev.buildings];
+        newBuildings[editingBuildingIndex] = { 
+          ...newBuildings[editingBuildingIndex], 
+          x: newX, 
+          y: newY,
+          zIndex: calculateIsometricZIndex(newY) // Atualiza profundidade ao mover
+        };
+        return { ...prev, buildings: newBuildings };
+      });
+      setEditState('placed');
+      showToast('📍 Posição confirmada! Ajuste as opções.', 'success');
+    }
+  }, [placementMode, previewPlacement, editingBuildingIndex, editState]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -418,14 +642,16 @@ function App() {
         onAdvanceSeason={advanceSeason}
         currentSeason={currentSeason}
         seasonLabel={SEASON_LABELS[currentSeason]}
+        isMeasuringMode={isMeasuringMode}
+        mousePos={mousePos}
       />
 
       {/* MAPA CENTRAL */}
       <main
         ref={containerRef}
         className={`flex-1 relative overflow-hidden pointer-events-auto bg-transparent
-          ${isPanning ? 'cursor-grabbing' : placementMode ? 'cursor-crosshair' : gameState.isDemolitionMode ? 'cursor-none' : ''}`}
-        style={gameState.isDemolitionMode ? {} : (isPanning || placementMode) ? {} : { cursor: 'grab' }}
+          ${isPanning ? 'cursor-grabbing' : gameState.isDemolitionMode ? 'cursor-none' : ''}`}
+        style={gameState.isDemolitionMode ? {} : (isPanning) ? {} : (placementMode || editState === 'moving') ? { cursor: 'crosshair' } : { cursor: 'grab' }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -444,16 +670,50 @@ function App() {
             transition: isPanning ? 'none' : 'transform 0.1s ease-out',
           }}
         >
-          {/* Placeholder invisível para dar tamanho ao mapa navegável */}
+          {/* PLACEHOLDER invisível para dar tamanho ao mapa navegável */}
           <div className="w-[1020px] h-[1020px] opacity-0 pointer-events-none" />
 
-          {/* ESTRADA E-W */}
+          {/* LIMITES DO TERRENO: Renderizado em perspectiva isométrica (Grade 5x5 Expanded Map) */}
+          <svg
+            width="100%" height="100%"
+            className="absolute inset-0 pointer-events-none overflow-visible"
+            style={{ zIndex: 2 }}
+            viewBox="0 0 1020 1020"
+          >
+            {Array.from({ length: 25 }).map((_, i) => {
+              const col = i % 5;
+              const row = Math.floor(i / 5);
+              const id = col === 2 && row === 2 ? 'center' : `sec_${col}_${row}`;
+              
+              const isOwned = id === 'center' || gameState.ownedSectors.includes(id);
+              
+              // Losangos calculados em escala real para "Aresta = 800px" (Ratio 2:1 isométrico ideal)
+              // Tile Bounding Box: Width = 1440, Height = 720 => rx = 720, ry = 360.
+              const cx = 510 + (col - row) * 720;
+              const cy = 510 + (col + row - 4) * 360;
+              
+              const points = `${cx},${cy - 360} ${cx + 720},${cy} ${cx},${cy + 360} ${cx - 720},${cy}`;
+              
+              return (
+                <polygon
+                  key={id}
+                  points={points}
+                  fill={isOwned ? "rgba(134,239,172,0.03)" : "rgba(0,0,0,0.2)"}
+                  stroke={isOwned ? "rgba(134,239,172,0.4)" : "rgba(255,255,255,0.15)"}
+                  strokeWidth="2"
+                  strokeDasharray={isOwned ? "10 5" : "5 8"}
+                />
+              );
+            })}
+          </svg>
+          {/* ESTRADA E-W NATIVA DA REGIÃO */}
           <WorldRoad />
 
-          {/* DECORAÇÕES DO MUNDO (abaixo das construções) */}
+          {/* DECORAÇÕES DO MUNDO (Florestas Iniciais Nativa e Culling Dinâmico) */}
           <WorldDecor
             isDemolitionMode={gameState.isDemolitionMode}
             removedIds={gameState.removedNativeTreeIds}
+            isInsideOwnedSector={isInsideOwnedSector}
             onDemolish={(id) => {
               setGameState(prev => ({
                 ...prev,
@@ -464,14 +724,57 @@ function App() {
             }}
           />
 
+          {/* RUAS PROCEDIMENTAIS DO USUÁRIO */}
+          {gameState.roads && gameState.roads.map((r, idx) => (
+            <img
+              key={`road_${idx}`}
+              src="/assets/decor/street.svg"
+              alt="street"
+              className="absolute pointer-events-none drop-shadow-sm transition-opacity"
+              style={{
+                top: `${r.y}%`, left: `${r.x}%`,
+                transform: 'translate(-50%, -50%)',
+                width: '6.5%', 
+                zIndex: r.zIndex || 9,
+                opacity: gameState.isDemolitionMode ? 0.3 : 1
+              }}
+            />
+          ))}
+
+          {/* FANTASMA ISOMÉTRICO (PREVIEW PATHING) */}
+          {roadDrawing && roadDrawing.pathTiles.map((r, idx) => (
+            <img
+              key={`rpreview_${idx}`}
+              src="/assets/decor/street.svg"
+              alt="street_preview"
+              className="absolute pointer-events-none opacity-80 filter drop-shadow-[0_0_8px_rgba(253,224,71,0.8)]"
+              style={{
+                top: `${r.y}%`, left: `${r.x}%`,
+                transform: 'translate(-50%, -50%)',
+                width: '6.5%',
+                zIndex: (r.zIndex || 9) + 9999
+              }}
+            />
+          ))}
+
           {/* CONSTRUÇÕES CONFIRMADAS */}
           {gameState.buildings.map((b, idx) => {
             const isDecor = b.id.startsWith('tree');
+            const isEditing = editingBuildingIndex === idx;
+            const isMoving = isEditing && editState === 'moving';
+            
+            // Quando a construção está no modo "moving" (fantasma), ela segue o mouse
+            const renderX = isMoving ? mousePos.x : b.x;
+            const renderY = isMoving ? mousePos.y : b.y;
+            
             return (
               <img
                 key={idx}
-                src={isDecor ? `/assets/decor/${b.id}.svg` : `/assets/STAGE 1/buildings/${b.id}.svg`}
+                src={isDecor ? `/assets/decor/${b.id}.svg` : `/assets/STAGE 1/buildings/${b.id}.${b.ext || 'png'}`}
                 alt={b.id}
+                onMouseDown={(e) => handleBuildingMouseDown(e, idx)}
+                onMouseUp={handleBuildingMouseUp}
+                onMouseLeave={handleBuildingMouseUp}
                 onClick={gameState.isDemolitionMode ? (e) => {
                   e.stopPropagation();
                   setGameState(prev => {
@@ -485,16 +788,27 @@ function App() {
                   });
                   setTimeout(() => setGameState(p => ({ ...p, toast: null })), 2000);
                 } : undefined}
-                className={`absolute drop-shadow-xl transition-all ${gameState.isDemolitionMode ? 'hover-demolish pointer-events-auto' : 'pointer-events-none'}`}
-                style={{ top: `${b.y}%`, left: `${b.x}%`, transform: 'translate(-50%, -50%)', width: `${b.scale || 8}%`, zIndex: b.zIndex || 10 }}
+                className={`absolute drop-shadow-xl transition-all
+                  ${gameState.isDemolitionMode ? 'hover-demolish-building pointer-events-auto' : 'pointer-events-auto'}
+                  ${isEditing && !isMoving ? 'selected-building' : ''}`}
+                style={{ 
+                  top: `${renderY}%`, 
+                  left: `${renderX}%`, 
+                  transform: `translate(-50%, -50%) scaleX(${b.flipX ? -1 : 1})`, 
+                  width: `${b.scale || 8}%`, 
+                  zIndex: isMoving ? 9999 : (b.zIndex || 10),
+                  opacity: (editingBuildingIndex !== null && !isEditing) ? 0.6 : (isMoving ? 0.001 : 1),
+                  // Não definir 'filter' inline no modo demolição — deixa o CSS animation agir
+                  filter: gameState.isDemolitionMode ? undefined : (isEditing && !isMoving) ? 'drop-shadow(0 0 15px rgba(56, 189, 248, 0.8))' : undefined
+                }}
               />
             );
           })}
 
-          {/* PREVIEW DO HOVER */}
+          {/* PREVIEW DO HOVER (Placement mode) */}
           {placementMode && !previewPlacement && (
             <img
-              src={placementMode.id.startsWith('tree') ? `/assets/decor/${placementMode.id}.svg` : `/assets/STAGE 1/buildings/${placementMode.id}.svg`}
+              src={placementMode.id.startsWith('tree') ? `/assets/decor/${placementMode.id}.svg` : `/assets/STAGE 1/buildings/${placementMode.id}.${BUILDING_CONFIG[placementMode.id]?.ext || 'png'}`}
               alt="preview_hover"
               className="absolute pointer-events-none opacity-60 z-20"
               style={{
@@ -505,6 +819,28 @@ function App() {
               }}
             />
           )}
+
+          {/* FANTASMA DO MODO MOVER (segue cursor igual ao placement) */}
+          {editingBuildingIndex !== null && editState === 'moving' && (() => {
+            const b = gameState.buildings[editingBuildingIndex];
+            const isDecor = b.id.startsWith('tree');
+            return (
+              <img
+                src={isDecor ? `/assets/decor/${b.id}.svg` : `/assets/STAGE 1/buildings/${b.id}.${b.ext || 'png'}`}
+                alt="move_ghost"
+                className="absolute pointer-events-none"
+                style={{
+                  top: `${mousePos.y}%`,
+                  left: `${mousePos.x}%`,
+                  transform: `translate(-50%, -50%) scaleX(${b.flipX ? -1 : 1})`,
+                  width: `${b.scale || 8}%`,
+                  opacity: 0.55,
+                  zIndex: 9999,
+                  filter: 'drop-shadow(0 0 12px rgba(56, 189, 248, 0.85))',
+                }}
+              />
+            );
+          })()}
 
           {/* MEDIDOR ISOMÉTRICO AVANÇADO */}
           {isMeasuringMode && (
@@ -626,11 +962,11 @@ function App() {
           {/* PREVIEW FIXADO + TOOLTIP */}
           {placementMode && previewPlacement && (
             <div
-              className="absolute z-30"
+              className="absolute z-[10000]"
               style={{ top: `${previewPlacement.y}%`, left: `${previewPlacement.x}%`, transform: 'translate(-50%, -50%)' }}
             >
               <img
-                src={placementMode.id.startsWith('tree') ? `/assets/decor/${placementMode.id}.svg` : `/assets/STAGE 1/buildings/${placementMode.id}.svg`}
+                src={placementMode.id.startsWith('tree') ? `/assets/decor/${placementMode.id}.svg` : `/assets/STAGE 1/buildings/${placementMode.id}.${BUILDING_CONFIG[placementMode.id]?.ext || 'png'}`}
                 alt="preview_fixed"
                 className="pointer-events-none opacity-95 drop-shadow-[0_0_18px_rgba(34,197,94,1)]"
                 style={{ width: `calc(1020px * ${previewScale / 100})` }}
@@ -638,8 +974,9 @@ function App() {
 
               {/* TOOLTIP COM ÍCONES */}
               <div
-                className="absolute top-full mt-4 left-1/2 -translate-x-1/2 bg-black/90 backdrop-blur-md p-3 rounded-2xl flex flex-col gap-3 pointer-events-auto border border-white/15 shadow-2xl min-w-[220px]"
+                className="absolute top-full mt-4 left-1/2 bg-black/90 backdrop-blur-md p-3 rounded-2xl flex flex-col gap-3 pointer-events-auto border border-white/15 shadow-2xl min-w-[220px]"
                 onMouseDown={e => e.stopPropagation()}
+                style={{ transform: `translateX(-50%) scale(${1 / transform.scale})`, transformOrigin: 'top center' }}
               >
                 {/* Custo da construção */}
                 <div className="text-center text-yellow-400 font-mono font-bold text-sm">
@@ -700,14 +1037,141 @@ function App() {
               </div>
             </div>
           )}
+
+          {/* MENU DE EDIÇÃO v2.9.0 */}
+          {editingBuildingIndex !== null && editState === 'placed' && (
+            <div
+              className="absolute z-[10000]"
+              style={{ 
+                top: `${gameState.buildings[editingBuildingIndex].y}%`, 
+                left: `${gameState.buildings[editingBuildingIndex].x}%`, 
+                transform: 'translate(-50%, -50%)' 
+              }}
+            >
+              {/* TOOLTIP DE EDIÇÃO */}
+              <div 
+                className="absolute top-full mt-6 left-1/2 bg-slate-900/95 backdrop-blur-xl p-4 rounded-3xl flex flex-col gap-4 pointer-events-auto border border-sky-400/30 shadow-[0_20px_50px_rgba(0,0,0,0.5)] min-w-[240px]"
+                onMouseDown={e => e.stopPropagation()}
+                style={{ transform: `translateX(-50%) scale(${1 / transform.scale})`, transformOrigin: 'top center' }}
+              >
+                <div className="text-center text-sky-400 font-black text-xs uppercase tracking-[0.2em] border-b border-white/10 pb-2">
+                  Modo Edição
+                </div>
+
+                {/* Slider de Escala */}
+                <div className="flex flex-col gap-1.5 px-1">
+                  <div className="flex justify-between text-white/70 text-[10px] uppercase font-bold tracking-wider">
+                    <span>Escala</span>
+                    <span className="font-mono text-sky-300">{gameState.buildings[editingBuildingIndex].scale?.toFixed(0) || 8}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="2" max="40" step="1"
+                    value={gameState.buildings[editingBuildingIndex].scale || 8}
+                    onChange={e => {
+                      const newScale = Number(e.target.value);
+                      setGameState(prev => {
+                        const nb = [...prev.buildings];
+                        nb[editingBuildingIndex] = { ...nb[editingBuildingIndex], scale: newScale };
+                        return { ...prev, buildings: nb };
+                      });
+                    }}
+                    className="w-full cursor-pointer accent-sky-500"
+                  />
+                </div>
+
+                {/* Camada e Flip */}
+                <div className="flex items-end justify-between px-1 gap-3">
+                  {/* Camada - agora mais larga */}
+                  <div className="flex flex-col gap-1 flex-1">
+                    <span className="text-white/70 text-[10px] uppercase font-bold tracking-wider">Camada</span>
+                    <div className="flex items-center gap-1 bg-slate-800 p-1 rounded-xl">
+                      <button
+                        onClick={e => { 
+                          e.stopPropagation(); 
+                          setGameState(prev => {
+                            const nb = [...prev.buildings];
+                            nb[editingBuildingIndex] = { ...nb[editingBuildingIndex], zIndex: Math.max(1, (nb[editingBuildingIndex].zIndex || 10) - 1) };
+                            return { ...prev, buildings: nb };
+                          });
+                        }}
+                        className="w-8 h-8 bg-slate-700 hover:bg-sky-600 text-white rounded-lg flex items-center justify-center transition-all"
+                      >▼</button>
+                      <span className="text-white font-mono text-sm flex-1 text-center">{gameState.buildings[editingBuildingIndex].zIndex || 10}</span>
+                      <button
+                        onClick={e => { 
+                          e.stopPropagation(); 
+                          setGameState(prev => {
+                            const nb = [...prev.buildings];
+                            nb[editingBuildingIndex] = { ...nb[editingBuildingIndex], zIndex: Math.min(100, (nb[editingBuildingIndex].zIndex || 10) + 1) };
+                            return { ...prev, buildings: nb };
+                          });
+                        }}
+                        className="w-8 h-8 bg-slate-700 hover:bg-sky-600 text-white rounded-lg flex items-center justify-center transition-all"
+                      >▲</button>
+                    </div>
+                  </div>
+
+                  {/* Espelho — mesmo tamanho dos outros botões de ação */}
+                  <div className="flex flex-col gap-1 items-center">
+                    <span className="text-white/70 text-[10px] uppercase font-bold tracking-wider">Espelho</span>
+                    <button
+                      onClick={e => { e.stopPropagation(); toggleFlipX(); }}
+                      className={`h-10 w-12 rounded-xl flex items-center justify-center text-xl transition-all border ${gameState.buildings[editingBuildingIndex].flipX ? 'bg-sky-600 border-sky-300 shadow-[0_0_15px_rgba(14,165,233,0.4)]' : 'bg-slate-800 border-white/10 hover:bg-slate-700'}`}
+                      title="Espelhar Horizontalmente"
+                    >↔️</button>
+                  </div>
+                </div>
+
+                {/* Botões de Ação */}
+                <div className="flex gap-2 w-full pt-2">
+                  <button
+                    onClick={e => { e.stopPropagation(); cancelEdit(); }}
+                    className="bg-slate-800 hover:bg-slate-700 text-white font-bold h-12 w-12 rounded-2xl flex items-center justify-center transition-all border border-white/10"
+                    title="Cancelar"
+                  >✕</button>
+                  <button
+                    onClick={e => {
+                      e.stopPropagation();
+                      if (window.confirm(`Deseja realmente demolir esta estrutura (${gameState.buildings[editingBuildingIndex].id})?`)) {
+                        setGameState(prev => {
+                          const nb = [...prev.buildings];
+                          nb.splice(editingBuildingIndex, 1);
+                          return { ...prev, buildings: nb, toast: { message: '🏗 Estrutura demolida!', type: 'info' } };
+                        });
+                        setEditingBuildingIndex(null);
+                        setEditBackup(null);
+                      }
+                    }}
+                    className="bg-red-800/80 hover:bg-red-600 text-white font-bold h-12 w-12 rounded-2xl flex items-center justify-center transition-all border border-red-500/30"
+                    title="Demolir"
+                  >🗑️</button>
+                  <button
+                    onClick={e => {
+                      e.stopPropagation();
+                      setEditState('moving');
+                      showToast('🖱️ Clique no mapa para confirmar o novo local.', 'info');
+                    }}
+                    className={`h-12 w-12 rounded-2xl flex items-center justify-center text-xl transition-all border ${editState === 'moving' ? 'bg-sky-600 border-sky-300 text-white shadow-[0_0_12px_rgba(14,165,233,0.4)]' : 'bg-slate-800 border-white/10 hover:bg-slate-700 text-sky-300'}`}
+                    title="Mover / Reposicionar"
+                  >✥</button>
+                  <button
+                    onClick={e => { e.stopPropagation(); confirmEdit(); }}
+                    className="bg-sky-600 hover:bg-sky-500 text-white font-black h-12 w-16 rounded-2xl text-2xl flex items-center justify-center transition-all shadow-[0_4px_0_0_#0369a1] active:translate-y-1 active:shadow-none border border-sky-300"
+                    title="Salvar"
+                  >✓</button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </main>
 
-      {/* FLANCO ESQUERDO */}
+      {/* FLANCO ESQUERDO — Edição do Mundo | Visível apenas em desktop */}
       <aside className="
         absolute z-40 pointer-events-auto
-        left-4 top-1/2 -translate-y-1/2 flex flex-col items-center gap-4
-        max-sm:left-1/2 max-sm:-translate-x-1/2 max-sm:top-auto max-sm:bottom-4 max-sm:flex-row max-sm:translate-y-0
+        left-4 top-1/2 -translate-y-1/2 flex-col items-center gap-4
+        hidden sm:flex
       ">
         {/* Construir */}
         <button
@@ -718,51 +1182,21 @@ function App() {
           <img src="/assets/icons/hammer.svg" alt="hammer" className="w-7 h-7 sm:w-8 sm:h-8 opacity-90 drop-shadow" />
         </button>
 
-        {/* Expansão de Terreno */}
+        {/* Construção de Cidades/Rua */}
         <button
-          onClick={() => setIsLandModalOpen(true)}
-          className="w-12 h-12 sm:w-14 sm:h-14 bg-slate-900/60 backdrop-blur-md rounded-xl flex items-center justify-center hover:bg-emerald-800/70 transition-colors border border-white/15 shadow-lg group"
-          title="Comprar Terreno"
-        >
-          <span className="text-xl group-hover:scale-125 transition-transform">🗺</span>
+          onClick={() => {
+            setIsRoadMode(prev => {
+              if (prev) setRoadDrawing(null);
+              return !prev;
+            });
+            setIsMeasuringMode(false);
+          }}
+          className={`w-12 h-12 sm:w-14 sm:h-14 backdrop-blur-md rounded-xl flex items-center justify-center transition-colors border shadow-lg group ${isRoadMode ? 'bg-orange-800 border-orange-400 shadow-[0_0_15px_rgba(251,146,60,0.5)]' : 'bg-slate-900/60 hover:bg-slate-800 border-white/15'}`}
+          title="Ferramenta Viária">
+          <span className="text-xl group-hover:scale-110 transition-transform pt-0.5" style={{ WebkitFilter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.4))'}}>🛣️</span>
         </button>
 
-        <button
-          onClick={() => setGameState(prev => ({ ...prev, isDemolitionMode: !prev.isDemolitionMode }))}
-          className={`w-12 h-12 sm:w-14 sm:h-14 backdrop-blur-md rounded-xl flex items-center justify-center transition-all border shadow-lg group ${gameState.isDemolitionMode ? 'bg-red-800 border-red-400 shadow-[0_0_20px_rgba(220,38,38,0.6)]' : 'bg-slate-900/60 hover:bg-slate-800 border-white/15'}`}
-          title="Demolição (Remover árvores e estruturas)"
-        >
-          <img src="/assets/icons/demolish.svg" alt="demolition" className="w-6 h-6 sm:w-8 sm:h-8 opacity-90 group-hover:scale-110 transition-transform group-hover:brightness-125 filter drop-shadow-md object-contain" />
-          {gameState.isDemolitionMode && <span className="absolute -top-1 -right-1 bg-red-500 text-[9px] font-black px-2 py-0.5 rounded-full animate-pulse text-white border border-red-300">ON</span>}
-        </button>
-
-        <button className="w-12 h-12 sm:w-14 sm:h-14 bg-slate-900/60 backdrop-blur-md rounded-xl flex items-center justify-center hover:bg-slate-800 transition-colors border border-white/15 shadow-lg group" title="Relatórios">
-          <img src="/assets/icons/lists.svg" alt="lists" className="w-6 h-6 opacity-75 group-hover:scale-110 transition-transform" />
-        </button>
-      </aside>
-
-      {/* FLANCO DIREITO — Desktop flutuante, Mobile dock inferior direita */}
-      <aside className="
-        absolute z-40 pointer-events-auto
-        right-4 top-1/2 -translate-y-1/2 flex flex-col items-center gap-4
-        max-sm:right-4 max-sm:top-auto max-sm:bottom-4 max-sm:flex-row max-sm:translate-y-0
-      ">
-        <button className="w-12 h-12 sm:w-14 sm:h-14 bg-slate-900/60 backdrop-blur-md rounded-xl flex items-center justify-center hover:bg-slate-800 transition-colors border border-white/15 shadow-lg group" title="Correio">
-          <img src="/assets/icons/mail.svg" alt="mail" className="w-6 h-6 opacity-75 group-hover:scale-110 transition-transform" />
-        </button>
-        <button className="w-12 h-12 sm:w-14 sm:h-14 bg-slate-900/60 backdrop-blur-md rounded-xl flex items-center justify-center hover:bg-slate-800 transition-colors border border-white/15 shadow-lg relative group" title="Alertas">
-          <img src="/assets/icons/alert.svg" alt="alert" className="w-6 h-6 opacity-75 group-hover:scale-110 transition-transform" />
-          <span className="absolute -top-1 -right-1 flex h-4 w-4">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-4 w-4 bg-red-600 border border-red-900 shadow-[0_0_6px_rgba(239,68,68,0.8)]"></span>
-          </span>
-        </button>
-        <button className="w-12 h-12 sm:w-14 sm:h-14 bg-slate-900/60 backdrop-blur-md rounded-xl flex items-center justify-center hover:bg-slate-800 transition-colors border border-white/15 shadow-lg group" title="Loja">
-          <img src="/assets/icons/store.svg" alt="store" className="w-6 h-6 opacity-75 group-hover:scale-110 transition-transform" />
-        </button>
-        <button className="w-12 h-12 sm:w-14 sm:h-14 bg-slate-900/60 backdrop-blur-md rounded-xl flex items-center justify-center hover:bg-slate-800 transition-colors border border-white/15 shadow-lg group" title="Configurações">
-          <img src="/assets/icons/settings.svg" alt="settings" className="w-6 h-6 opacity-75 group-hover:scale-110 transition-transform" />
-        </button>
+        {/* Medição (Movido para Esquerda) */}
         <button
           onClick={() => {
             setIsMeasuringMode(prev => {
@@ -773,11 +1207,180 @@ function App() {
               }
               return !prev;
             });
+            setIsRoadMode(false);
           }}
           className={`w-12 h-12 sm:w-14 sm:h-14 backdrop-blur-md rounded-xl flex items-center justify-center transition-colors border shadow-lg group ${isMeasuringMode ? 'bg-purple-800 border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.5)]' : 'bg-slate-900/60 hover:bg-slate-800 border-white/15'}`}
-          title="Medidor Geométrico Isométrico">
-          <span className="text-xl group-hover:scale-110 transition-transform opacity-95 text-white bg-transparent pt-0.5">📐</span>
+          title="Medidor Isométrico">
+          <span className="text-xl group-hover:scale-110 transition-transform opacity-95 text-white bg-transparent pt-0.5" style={{ WebkitFilter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.4))'}}>📐</span>
         </button>
+
+        {/* Demolição */}
+        <button
+          onClick={() => setGameState(prev => ({ ...prev, isDemolitionMode: !prev.isDemolitionMode }))}
+          className={`w-12 h-12 sm:w-14 sm:h-14 backdrop-blur-md rounded-xl flex items-center justify-center transition-all border shadow-lg group ${gameState.isDemolitionMode ? 'bg-red-800 border-red-400 shadow-[0_0_20px_rgba(220,38,38,0.6)]' : 'bg-slate-900/60 hover:bg-slate-800 border-white/15'}`}
+          title="Demolição"
+        >
+          <img src="/assets/icons/demolish.svg" alt="demolition" className="w-6 h-6 sm:w-8 sm:h-8 opacity-90 group-hover:scale-110 transition-transform filter drop-shadow-md object-contain" />
+          {gameState.isDemolitionMode && <span className="absolute -top-1 -right-1 bg-red-500 text-[9px] font-black px-2 py-0.5 rounded-full animate-pulse text-white border border-red-300">ON</span>}
+        </button>
+
+        {/* Expansão de Terreno */}
+        <button
+          onClick={() => setIsLandModalOpen(true)}
+          className="w-12 h-12 sm:w-14 sm:h-14 bg-slate-900/60 backdrop-blur-md rounded-xl flex items-center justify-center hover:bg-emerald-800/70 transition-colors border border-white/15 shadow-lg group"
+          title="Comprar Terreno"
+        >
+          <span className="text-xl group-hover:scale-125 transition-transform">🗺</span>
+        </button>
+      </aside>
+
+      {/* FLANCO DIREITO — Gestão e Sistema | Visível apenas em desktop */}
+      <aside className="
+        absolute z-40 pointer-events-auto
+        right-4 top-1/2 -translate-y-1/2 flex-col items-center gap-4
+        hidden sm:flex
+      ">
+        {/* Tarefas (Renomeado de Relatórios) */}
+        <button className="w-12 h-12 sm:w-14 sm:h-14 bg-slate-900/60 backdrop-blur-md rounded-xl flex items-center justify-center hover:bg-slate-800 transition-colors border border-white/15 shadow-lg group" title="Tarefas">
+          <img src="/assets/icons/lists.svg" alt="tasks" className="w-6 h-6 opacity-75 group-hover:scale-110 transition-transform" />
+        </button>
+
+        {/* Alertas */}
+        <button className="w-12 h-12 sm:w-14 sm:h-14 bg-slate-900/60 backdrop-blur-md rounded-xl flex items-center justify-center hover:bg-slate-800 transition-colors border border-white/15 shadow-lg relative group" title="Alertas">
+          <img src="/assets/icons/alert.svg" alt="alert" className="w-6 h-6 opacity-75 group-hover:scale-110 transition-transform" />
+          <span className="absolute -top-1 -right-1 flex h-4 w-4">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-4 w-4 bg-red-600 border border-red-900 shadow-[0_0_6px_rgba(239,68,68,0.8)]"></span>
+          </span>
+        </button>
+
+        {/* Loja */}
+        <button className="w-12 h-12 sm:w-14 sm:h-14 bg-slate-900/60 backdrop-blur-md rounded-xl flex items-center justify-center hover:bg-slate-800 transition-colors border border-white/15 shadow-lg group" title="Loja">
+          <img src="/assets/icons/store.svg" alt="store" className="w-6 h-6 opacity-75 group-hover:scale-110 transition-transform" />
+        </button>
+
+        {/* Configurações */}
+        <button className="w-12 h-12 sm:w-14 sm:h-14 bg-slate-900/60 backdrop-blur-md rounded-xl flex items-center justify-center hover:bg-slate-800 transition-colors border border-white/15 shadow-lg group" title="Configurações">
+          <img src="/assets/icons/settings.svg" alt="settings" className="w-6 h-6 opacity-75 group-hover:scale-110 transition-transform" />
+        </button>
+      </aside>
+
+      {/* DOCK MOBILE — Visível apenas em telas pequenas (< sm) */}
+      <aside className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 pointer-events-auto flex sm:hidden w-[96%] max-w-[360px] justify-center pb-safe">
+        <div
+          className="grid grid-cols-4 gap-3 px-4 py-3 w-full bg-slate-900/90 backdrop-blur-xl rounded-[24px] border border-white/10 shadow-[0_-4px_30px_rgba(0,0,0,0.5)] justify-items-center"
+          style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}
+        >
+          {/* Construir */}
+          <button
+            onClick={() => setIsBuildingsModalOpen(true)}
+            className="w-12 h-12 bg-gradient-to-b from-yellow-400 to-yellow-500 rounded-2xl flex items-center justify-center shadow-[0_4px_0_0_#b45309] active:translate-y-1 active:shadow-none border border-yellow-200"
+            title="Construir"
+          >
+            <img src="/assets/icons/hammer.svg" alt="hammer" className="w-6 h-6 opacity-90" />
+          </button>
+
+          {/* Ruas (Novo) */}
+          <button
+            onClick={() => {
+              setIsRoadMode(prev => {
+                if (prev) setRoadDrawing(null);
+                return !prev;
+              });
+              setIsMeasuringMode(false);
+            }}
+            className={`w-11 h-11 rounded-2xl flex items-center justify-center border transition-all ${
+              isRoadMode
+                ? 'bg-orange-800 border-orange-400 shadow-[0_0_12px_rgba(251,146,60,0.5)]'
+                : 'bg-slate-800 border-white/10'
+            }`}
+            title="Ferramenta Viária"
+          >
+            <span className="text-lg pb-0.5">🛣️</span>
+          </button>
+
+          {/* Medição */}
+          <button
+            onClick={() => {
+              setIsMeasuringMode(prev => {
+                if (prev) {
+                  setMeasurePoints([]);
+                  setDrawingRect(null);
+                  setDragContext(null);
+                }
+                return !prev;
+              });
+              setIsRoadMode(false);
+            }}
+            className={`w-11 h-11 rounded-2xl flex items-center justify-center border transition-all ${
+              isMeasuringMode
+                ? 'bg-purple-800 border-purple-400 shadow-[0_0_12px_rgba(168,85,247,0.5)]'
+                : 'bg-slate-800 border-white/10'
+            }`}
+            title="Medidor Isométrico"
+          >
+            <span className="text-lg">📐</span>
+          </button>
+
+          {/* Demolição */}
+          <button
+            onClick={() => setGameState(prev => ({ ...prev, isDemolitionMode: !prev.isDemolitionMode }))}
+            className={`relative w-11 h-11 rounded-2xl flex items-center justify-center border transition-all ${
+              gameState.isDemolitionMode
+                ? 'bg-red-800 border-red-400 shadow-[0_0_12px_rgba(220,38,38,0.6)]'
+                : 'bg-slate-800 border-white/10'
+            }`}
+            title="Demolição"
+          >
+            <img src="/assets/icons/demolish.svg" alt="demolition" className="w-5 h-5 opacity-90 object-contain" />
+            {gameState.isDemolitionMode && <span className="absolute -top-1 -right-1 bg-red-500 text-[8px] font-black px-1 py-0.5 rounded-full text-white">ON</span>}
+          </button>
+
+          {/* Comprar Terreno */}
+          <button
+            onClick={() => setIsLandModalOpen(true)}
+            className="w-11 h-11 bg-slate-800 rounded-2xl flex items-center justify-center border border-white/10 hover:bg-emerald-900/60 transition-colors"
+            title="Comprar Terreno"
+          >
+            <span className="text-lg">🗺</span>
+          </button>
+
+          {/* Tarefas */}
+          <button
+            className="w-11 h-11 bg-slate-800 rounded-2xl flex items-center justify-center border border-white/10"
+            title="Tarefas"
+          >
+            <img src="/assets/icons/lists.svg" alt="tasks" className="w-5 h-5 opacity-75" />
+          </button>
+
+          {/* Alertas */}
+          <button
+            className="relative w-11 h-11 bg-slate-800 rounded-2xl flex items-center justify-center border border-white/10"
+            title="Alertas"
+          >
+            <img src="/assets/icons/alert.svg" alt="alert" className="w-5 h-5 opacity-75" />
+            <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-600 border border-red-900" />
+            </span>
+          </button>
+
+          {/* Loja */}
+          <button
+            className="w-11 h-11 bg-slate-800 rounded-2xl flex items-center justify-center border border-white/10"
+            title="Loja"
+          >
+            <img src="/assets/icons/store.svg" alt="store" className="w-5 h-5 opacity-75" />
+          </button>
+
+          {/* Configurações */}
+          <button
+            className="w-11 h-11 bg-slate-800 rounded-2xl flex items-center justify-center border border-white/10"
+            title="Configurações"
+          >
+            <img src="/assets/icons/settings.svg" alt="settings" className="w-5 h-5 opacity-75" />
+          </button>
+        </div>
       </aside>
 
       {/* GUIA DO PLACEMENT MODE */}
@@ -791,7 +1394,9 @@ function App() {
 
       {/* TOAST DE FEEDBACK */}
       {gameState.toast && (
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[200] pointer-events-none">
+        <div className="absolute bottom-36 sm:bottom-8 left-1/2 -translate-x-1/2 z-[200] pointer-events-none"
+          style={{ bottom: 'max(160px, calc(160px + env(safe-area-inset-bottom)))' }}
+        >
           <div className={`
             px-6 py-3 rounded-2xl shadow-2xl font-bold text-sm backdrop-blur-md border
             ${gameState.toast.type === 'error' ? 'bg-red-900/90 text-red-200 border-red-700' : ''}
@@ -820,19 +1425,6 @@ function App() {
         </div>
       )}
 
-      {/* INSTRUÇÕES DO MEDIDOR TELA INTEIRA - Reposicionado ao bottom e reduzido */}
-      {isMeasuringMode && measurePoints.length === 0 && !drawingRect && (
-        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[200] pointer-events-none scale-75 md:scale-90 opacity-90">
-          <div className="bg-purple-900/90 backdrop-blur-md text-purple-100 text-[11px] uppercase tracking-wide font-black p-5 flex flex-col items-center rounded-2xl border border-purple-500/50 shadow-[0_10px_40px_rgba(88,28,135,0.8)] text-center leading-relaxed">
-            <span className="text-white text-sm mb-3 px-4 py-1.5 rounded-full bg-purple-700/60 shadow-inner">📐 O Mapeador Isométrico</span>
-            <div className="flex flex-col items-start gap-1">
-              <span className="opacity-95 text-xs text-purple-200">• Clique e arraste para desenhar o perímetro.</span>
-              <span className="opacity-95 text-xs text-purple-200">• Mova cantos ou linhas para editar.</span>
-            </div>
-            <span className="text-yellow-300 mt-3 uppercase font-bold text-xs tracking-[0.2em] bg-black/30 px-3 py-1 rounded text-opacity-90">Tecla [ESC] fecha</span>
-          </div>
-        </div>
-      )}
 
       {/* MODAIS */}
       <BuildingsModal

@@ -1,21 +1,27 @@
 import React from 'react';
 
-const SECTOR_GRID = [
-  { id: 'nw', row: 0, col: 0, cost: 50000 },
-  { id: 'n',  row: 0, col: 1, cost: 50000 },
-  { id: 'ne', row: 0, col: 2, cost: 50000 },
-  { id: 'w',  row: 1, col: 0, cost: 35000 },
-  { id: 'center', row: 1, col: 1, cost: 0 },
-  { id: 'e',  row: 1, col: 2, cost: 35000 },
-  { id: 'sw', row: 2, col: 0, cost: 50000 },
-  { id: 's',  row: 2, col: 1, cost: 50000 },
-  { id: 'se', row: 2, col: 2, cost: 50000 },
-];
+// Gera a matriz 5x5 dinamicamente
+const SECTOR_GRID = Array.from({ length: 25 }).map((_, i) => {
+  const col = i % 5;
+  const row = Math.floor(i / 5);
+  let id = `sec_${col}_${row}`;
+  let cost = 0;
+  
+  if (col === 2 && row === 2) {
+    id = 'center';
+  } else {
+    // Math de distância geométrica simples: Camadas radiais
+    const dist = Math.max(Math.abs(col - 2), Math.abs(row - 2));
+    if (dist === 1) cost = 35000;
+    else cost = 85000;
+  }
+  
+  return { id, row, col, cost };
+});
 
-const SECTOR_LABELS = {
-  nw: 'NW', n: 'Norte', ne: 'NE',
-  w: 'Oeste', center: 'Sua Fazenda', e: 'Leste',
-  sw: 'SO', s: 'Sul', se: 'SE',
+const getSectorLabel = (id, col, row) => {
+  if (id === 'center') return 'Sede';
+  return `Lote ${col},${row}`;
 };
 
 const fmt = (v) => new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(v);
@@ -46,10 +52,10 @@ export function LandModal({ isOpen, onClose, ownedSectors, onBuySector, money })
           <span className="text-xs text-green-600 font-bold">disponível</span>
         </div>
 
-        {/* Grid 3x3 */}
+        {/* Grid 5x5 */}
         <div className="p-5">
           <p className="text-sm text-slate-500 mb-4">Compre terrenos adjacentes para expandir sua fazenda.</p>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-5 gap-1.5">
             {SECTOR_GRID.map(sector => {
               const owned = sector.id === 'center' || ownedSectors.includes(sector.id);
               const canAfford = money >= sector.cost;
@@ -57,14 +63,14 @@ export function LandModal({ isOpen, onClose, ownedSectors, onBuySector, money })
               return (
                 <div
                   key={sector.id}
-                  className={`rounded-xl p-3 border-2 text-center transition-all ${
+                  className={`rounded-lg p-2 border-2 text-center transition-all flex flex-col items-center justify-center ${
                     owned
                       ? 'bg-green-50 border-green-300'
                       : 'bg-slate-50 border-slate-200 hover:border-slate-300'
                   }`}
                 >
-                  <div className={`text-xs font-bold mb-2 ${owned ? 'text-green-700' : 'text-slate-500'}`}>
-                    {SECTOR_LABELS[sector.id]}
+                  <div className={`text-[10px] leading-tight font-bold mb-1.5 flex-1 flex items-center justify-center ${owned ? 'text-green-700' : 'text-slate-500'}`}>
+                    {getSectorLabel(sector.id, sector.col, sector.row)}
                   </div>
                   {owned ? (
                     <div className="text-green-600 text-lg">✓</div>
@@ -72,7 +78,7 @@ export function LandModal({ isOpen, onClose, ownedSectors, onBuySector, money })
                     <button
                       onClick={() => onBuySector(sector.id, sector.cost)}
                       disabled={!canAfford}
-                      className={`w-full py-1.5 px-2 rounded-lg text-xs font-black transition-all ${
+                      className={`w-full py-1 px-1 rounded-md text-[10px] font-black transition-all ${
                         canAfford
                           ? 'bg-yellow-400 hover:bg-yellow-300 text-yellow-900 shadow-[0_2px_0_0_#92400e] active:translate-y-0.5 active:shadow-none'
                           : 'bg-slate-200 text-slate-400 cursor-not-allowed'

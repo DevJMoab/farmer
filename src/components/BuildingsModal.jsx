@@ -54,9 +54,10 @@ function BuildingThumb({ id, category }) {
     );
   }
 
+  const ext = (id === 'sede' || id === 'silo') ? 'svg' : 'png';
   const src = category === 'Decorations'
     ? `/assets/decor/${id}.svg`
-    : `/assets/STAGE 1/buildings/${id}.svg`;
+    : `/assets/STAGE 1/buildings/${id}.${ext}`;
 
   return (
     <img
